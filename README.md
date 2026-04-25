@@ -44,13 +44,13 @@ Package publication uses the repository `GITHUB_TOKEN`, so no extra registry sec
 
 ## Scripts
 
-| Command            | Purpose                                        |
-| ------------------ | ---------------------------------------------- |
-| `pnpm dev`         | Vite dev server with router + Tailwind plugins |
-| `pnpm build`       | Type-check, then build the static bundle       |
-| `pnpm preview`     | Preview the built bundle                       |
-| `pnpm typecheck`   | TypeScript build-mode type-check only          |
-| `pnpm codegen`     | Regenerate GraphQL typed operations            |
+| Command          | Purpose                                        |
+| ---------------- | ---------------------------------------------- |
+| `pnpm dev`       | Vite dev server with router + Tailwind plugins |
+| `pnpm build`     | Type-check, then build the static bundle       |
+| `pnpm preview`   | Preview the built bundle                       |
+| `pnpm typecheck` | TypeScript build-mode type-check only          |
+| `pnpm codegen`   | Regenerate GraphQL typed operations            |
 
 ## Project layout
 
