@@ -1,0 +1,33 @@
+import { useEffect, useState, type ReactNode } from 'react';
+import { SideRail } from './side-rail';
+import { TopBar } from './top-bar';
+import { BottomNav } from './bottom-nav';
+import { CommandPalette } from './command-palette';
+
+export function AppShell({ children }: { children: ReactNode }) {
+  const [paletteOpen, setPaletteOpen] = useState(false);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      const isMac = navigator.platform.toLowerCase().includes('mac');
+      if ((isMac ? e.metaKey : e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setPaletteOpen((v) => !v);
+      }
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  return (
+    <div className="grid h-full grid-cols-1 md:grid-cols-[auto_1fr]">
+      <SideRail className="hidden md:flex" />
+      <div className="flex h-full min-w-0 flex-col">
+        <TopBar onOpenPalette={() => setPaletteOpen(true)} />
+        <main className="min-h-0 flex-1 overflow-y-auto pb-20 md:pb-0">{children}</main>
+        <BottomNav className="md:hidden" />
+      </div>
+      <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
+    </div>
+  );
+}

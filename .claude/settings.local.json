@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm install *)",
+      "Bash(pnpm codegen *)",
+      "Bash(pnpm typecheck *)",
+      "Bash(pnpm add *)",
+      "Bash(pnpm exec *)",
+      "Bash(pnpm dev *)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:5173/)",
+      "Bash(curl -s http://localhost:5173/)",
+      "Bash(curl -s -o /dev/null -w \"main.tsx: HTTP %{http_code}\\\\n\" http://localhost:5173/src/main.tsx)",
+      "Bash(taskkill //F //FI \"WINDOWTITLE eq *vite*\")",
+      "Bash(awk '{print $2}')",
+      "Bash(xargs -r -n1 kill -9)",
+      "Bash(curl -s -o /dev/null -w \"after kill: HTTP %{http_code}\\\\n\" --max-time 2 http://localhost:5173/)",
+      "Bash(awk '/^type MangaType/,/^}/' A:/_claude_/sorayomi-next/schema.graphql)",
+      "Bash(awk '/^type ChapterType/,/^}/' A:/_claude_/sorayomi-next/schema.graphql)",
+      "Bash(pnpm lint *)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(awk '/^type DownloadType/,/^}/' A:/_claude_/sorayomi-next/schema.graphql)"
+    ]
+  }
+}

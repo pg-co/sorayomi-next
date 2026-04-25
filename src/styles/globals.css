@@ -1,0 +1,148 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * sorayomi theme — warm-neutral surfaces with a peach/coral accent that flatters
+ * manga cover art. Tokens follow the shadcn convention so any shadcn component
+ * picks them up unchanged.
+ */
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  --color-bg-rail: var(--rail);
+  --color-bg-elevated: var(--elevated);
+}
+
+:root {
+  --background: oklch(0.985 0.005 80);
+  --foreground: oklch(0.18 0.01 60);
+  --card: oklch(0.99 0.004 80);
+  --card-foreground: oklch(0.18 0.01 60);
+  --popover: oklch(0.99 0.004 80);
+  --popover-foreground: oklch(0.18 0.01 60);
+  --primary: oklch(0.72 0.16 35);
+  --primary-foreground: oklch(0.99 0.005 80);
+  --secondary: oklch(0.95 0.01 70);
+  --secondary-foreground: oklch(0.22 0.02 60);
+  --muted: oklch(0.95 0.008 70);
+  --muted-foreground: oklch(0.5 0.02 60);
+  --accent: oklch(0.93 0.04 50);
+  --accent-foreground: oklch(0.22 0.04 50);
+  --destructive: oklch(0.6 0.21 25);
+  --destructive-foreground: oklch(0.99 0.005 80);
+  --border: oklch(0.9 0.01 70);
+  --input: oklch(0.93 0.008 70);
+  --ring: oklch(0.72 0.16 35 / 0.5);
+
+  --rail: oklch(0.97 0.006 70);
+  --elevated: oklch(1 0 0);
+
+  /* Domain-semantic tokens (used across library, downloads, reader) */
+  --unread: oklch(0.72 0.16 35);
+  --downloaded: oklch(0.7 0.14 160);
+  --bookmarked: oklch(0.72 0.16 80);
+  --tracker-mal: oklch(0.55 0.22 260);
+  --tracker-anilist: oklch(0.62 0.2 220);
+}
+
+.dark {
+  --background: oklch(0.16 0.012 285);
+  --foreground: oklch(0.96 0.005 80);
+  --card: oklch(0.2 0.012 285);
+  --card-foreground: oklch(0.96 0.005 80);
+  --popover: oklch(0.2 0.012 285);
+  --popover-foreground: oklch(0.96 0.005 80);
+  --primary: oklch(0.78 0.16 35);
+  --primary-foreground: oklch(0.18 0.02 30);
+  --secondary: oklch(0.25 0.014 285);
+  --secondary-foreground: oklch(0.96 0.005 80);
+  --muted: oklch(0.24 0.012 285);
+  --muted-foreground: oklch(0.7 0.02 80);
+  --accent: oklch(0.3 0.04 35);
+  --accent-foreground: oklch(0.96 0.005 80);
+  --destructive: oklch(0.65 0.22 25);
+  --destructive-foreground: oklch(0.99 0.005 80);
+  --border: oklch(0.28 0.012 285 / 0.6);
+  --input: oklch(0.28 0.012 285);
+  --ring: oklch(0.78 0.16 35 / 0.55);
+
+  --rail: oklch(0.18 0.012 285);
+  --elevated: oklch(0.22 0.013 285);
+
+  --unread: oklch(0.78 0.16 35);
+  --downloaded: oklch(0.75 0.14 160);
+  --bookmarked: oklch(0.8 0.16 80);
+  --tracker-mal: oklch(0.65 0.22 260);
+  --tracker-anilist: oklch(0.7 0.2 220);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-rail: var(--rail);
+  --color-elevated: var(--elevated);
+  --color-unread: var(--unread);
+  --color-downloaded: var(--downloaded);
+  --color-bookmarked: var(--bookmarked);
+  --color-tracker-mal: var(--tracker-mal);
+  --color-tracker-anilist: var(--tracker-anilist);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background-color: color-mix(in oklch, var(--primary) 35%, transparent);
+  }
+  /* Density variants — opt-in via [data-density="compact"] on a layout root */
+  [data-density='compact'] {
+    --space-tight: 0.5rem;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .reader-pixelated img {
+    image-rendering: pixelated;
+  }
+}
