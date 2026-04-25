@@ -25,6 +25,23 @@ pnpm dev
 
 The app boots at <http://localhost:5173>. If you'd rather configure the server URL at runtime instead of via env, leave `VITE_SUWAYOMI_URL` unset and set the URL in **Settings → Server** inside the app.
 
+## Docker
+
+The repo includes a multi-stage `Dockerfile` that builds the static app with `pnpm` and serves it with `nginx` on port `80`.
+
+```bash
+docker build -t sorayomi-next .
+docker run --rm -p 8080:80 sorayomi-next
+```
+
+The container only serves the frontend bundle. Point the app at a Suwayomi server through **Settings → Server**, or place the container behind a reverse proxy that handles `/api` for same-origin deployments.
+
+## GitHub Container Registry
+
+The workflow at `.github/workflows/docker-publish.yml` builds and publishes `ghcr.io/<owner>/<repo>` when you push to `main`, push a `v*` tag, or trigger it manually.
+
+Package publication uses the repository `GITHUB_TOKEN`, so no extra registry secret is required for the default repo package.
+
 ## Scripts
 
 | Command            | Purpose                                        |
