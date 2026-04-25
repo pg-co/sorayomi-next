@@ -12,11 +12,12 @@ import { toast } from 'sonner';
 import { DownloadProgressButton } from '@/features/downloads/download-progress-button';
 import { ENQUEUE_CHAPTERS_DOC } from '@/features/downloads/queries';
 import { useDownloadsByChapter } from '@/features/downloads/use-download-status';
+import type { QueuedDownload } from '@/features/downloads/use-download-status';
 
 type DetailManga = MangaDetailQuery['manga'];
 
 export function MangaDetailPage({ mangaId }: { mangaId: number }) {
-  const [{ data, fetching, error }] = useQuery({ query: MANGA_DETAIL_DOC, variables: { id: mangaId } });
+  const [{ data, fetching, error }, reload] = useQuery({ query: MANGA_DETAIL_DOC, variables: { id: mangaId } });
 
   if (error) {
     return (
@@ -33,13 +34,13 @@ export function MangaDetailPage({ mangaId }: { mangaId: number }) {
 
   return (
     <div>
-      <Hero manga={data.manga} />
+      <Hero manga={data.manga} onLibraryChange={() => reload({ requestPolicy: 'network-only' })} />
       <ChapterList mangaId={mangaId} />
     </div>
   );
 }
 
-function Hero({ manga }: { manga: DetailManga }) {
+function Hero({ manga, onLibraryChange }: { manga: DetailManga; onLibraryChange: () => void }) {
   return (
     <header className="relative overflow-hidden">
       {/* Backdrop */}
@@ -84,7 +85,7 @@ function Hero({ manga }: { manga: DetailManga }) {
             ) : null}
 
             <div className="mt-4 flex flex-wrap items-center justify-center gap-2 md:justify-start">
-              <LibraryToggle id={manga.id} inLibrary={manga.inLibrary} />
+              <LibraryToggle id={manga.id} inLibrary={manga.inLibrary} onChanged={onLibraryChange} />
               {manga.inLibrary ? (
                 <CategoriesButton
                   mangaId={manga.id}
@@ -145,7 +146,15 @@ function Stat({
   );
 }
 
-function LibraryToggle({ id, inLibrary }: { id: number; inLibrary: boolean }) {
+function LibraryToggle({
+  id,
+  inLibrary,
+  onChanged,
+}: {
+  id: number;
+  inLibrary: boolean;
+  onChanged: () => void;
+}) {
   const [, run] = useMutation(UPDATE_MANGA_LIBRARY_DOC);
   const [pending, setPending] = useState(false);
   async function toggle() {
@@ -153,7 +162,10 @@ function LibraryToggle({ id, inLibrary }: { id: number; inLibrary: boolean }) {
     try {
       const res = await run({ id, inLibrary: !inLibrary });
       if (res.error) toast.error(res.error.message);
-      else toast.success(inLibrary ? 'Removed from library' : 'Added to library');
+      else {
+        onChanged();
+        toast.success(inLibrary ? 'Removed from library' : 'Added to library');
+      }
     } finally {
       setPending(false);
     }
@@ -263,7 +275,7 @@ function ChapterList({ mangaId }: { mangaId: number }) {
       {fetching && !data ? (
         <ChapterListSkeleton />
       ) : (
-        <VirtualChapterList mangaId={mangaId} chapters={chapters} />
+        <VirtualChapterList mangaId={mangaId} chapters={chapters} queueMap={queueMap} />
       )}
     </section>
   );
@@ -274,9 +286,11 @@ type ChapterRow = MangaChaptersQuery['chapters']['nodes'][number];
 function VirtualChapterList({
   mangaId,
   chapters,
+  queueMap,
 }: {
   mangaId: number;
   chapters: ReadonlyArray<ChapterRow>;
+  queueMap: ReadonlyMap<number, QueuedDownload>;
 }) {
   const parentRef = useRef<HTMLDivElement>(null);
   const virtualizer = useVirtualizer({
@@ -340,7 +354,11 @@ function VirtualChapterList({
                   {c.isBookmarked ? (
                     <BookmarkCheck className="size-4" style={{ color: 'var(--bookmarked)' }} />
                   ) : null}
-                  <DownloadProgressButton chapterId={c.id} isDownloaded={c.isDownloaded} />
+                  <DownloadProgressButton
+                    chapterId={c.id}
+                    isDownloaded={c.isDownloaded}
+                    queued={queueMap.get(c.id)}
+                  />
                 </div>
               </Link>
             </div>

@@ -7,6 +7,7 @@ import { authHeader, resolveUrl } from '@/lib/server-config';
  */
 export const rest = ky.create({
   prefixUrl: '',
+  credentials: 'include',
   hooks: {
     beforeRequest: [
       (req) => {

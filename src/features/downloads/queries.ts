@@ -5,7 +5,6 @@ export const DOWNLOAD_STATUS_DOC = graphql(`
     downloadStatus {
       state
       queue {
-        position
         progress
         state
         tries
@@ -29,7 +28,6 @@ export const DOWNLOAD_CHANGED_SUBSCRIPTION = graphql(`
     downloadChanged {
       state
       queue {
-        position
         progress
         state
         tries
@@ -57,7 +55,6 @@ export const ENQUEUE_CHAPTER_DOC = graphql(`
           chapter { id }
           progress
           state
-          position
         }
       }
     }
@@ -73,7 +70,6 @@ export const ENQUEUE_CHAPTERS_DOC = graphql(`
           chapter { id }
           progress
           state
-          position
         }
       }
     }
@@ -89,7 +85,6 @@ export const DEQUEUE_CHAPTER_DOC = graphql(`
           chapter { id }
           progress
           state
-          position
         }
       }
     }
@@ -127,7 +122,6 @@ export const REORDER_DOWNLOAD_DOC = graphql(`
           chapter { id }
           progress
           state
-          position
         }
       }
     }
@@ -137,9 +131,7 @@ export const REORDER_DOWNLOAD_DOC = graphql(`
 export const START_DOWNLOADER_DOC = graphql(`
   mutation StartDownloader {
     startDownloader(input: {}) {
-      downloadStatus {
-        state
-      }
+      __typename
     }
   }
 `);
@@ -147,9 +139,7 @@ export const START_DOWNLOADER_DOC = graphql(`
 export const STOP_DOWNLOADER_DOC = graphql(`
   mutation StopDownloader {
     stopDownloader(input: {}) {
-      downloadStatus {
-        state
-      }
+      __typename
     }
   }
 `);
@@ -163,7 +153,6 @@ export const CLEAR_DOWNLOADER_DOC = graphql(`
           chapter { id }
           progress
           state
-          position
         }
       }
     }

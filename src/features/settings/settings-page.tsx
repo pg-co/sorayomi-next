@@ -4,7 +4,7 @@ import { Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { readServerConfig, writeServerConfig } from '@/lib/server-config';
 import { useShowNsfw } from '@/lib/client-prefs';
-import { SETTINGS_DOC, SET_EXTENSION_REPOS_DOC } from './queries';
+import { SETTINGS_DOC, SET_EXTENSION_REPOS_DOC, SET_FLARESOLVERR_DOC } from './queries';
 import { cn } from '@/lib/utils';
 
 export function SettingsPage() {
@@ -15,6 +15,7 @@ export function SettingsPage() {
 
       <ServerSection />
       <ContentSection />
+      <FlareSolverrSection />
       <ExtensionsSection />
     </div>
   );
@@ -73,6 +74,140 @@ function ContentSection() {
           </p>
         </div>
         <Toggle checked={showNsfw} onChange={setShowNsfw} ariaLabel="Show NSFW sources" />
+      </div>
+    </section>
+  );
+}
+
+function FlareSolverrSection() {
+  const [{ data, fetching, error }, refetch] = useQuery({
+    query: SETTINGS_DOC,
+    requestPolicy: 'cache-and-network',
+  });
+  const [, run] = useMutation(SET_FLARESOLVERR_DOC);
+  const [enabled, setEnabled] = useState(false);
+  const [sessionName, setSessionName] = useState('suwayomi');
+  const [sessionTtl, setSessionTtl] = useState('15');
+  const [timeout, setTimeoutValue] = useState('60');
+  const [url, setUrl] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!data?.settings) return;
+    setEnabled(data.settings.flareSolverrEnabled);
+    setSessionName(data.settings.flareSolverrSessionName);
+    setSessionTtl(String(data.settings.flareSolverrSessionTtl));
+    setTimeoutValue(String(data.settings.flareSolverrTimeout));
+    setUrl(data.settings.flareSolverrUrl);
+  }, [data]);
+
+  async function save() {
+    const nextUrl = url.trim();
+    const nextSessionName = sessionName.trim();
+    const nextSessionTtl = Number.parseInt(sessionTtl, 10);
+    const nextTimeout = Number.parseInt(timeout, 10);
+
+    if (!Number.isFinite(nextSessionTtl) || nextSessionTtl < 0) {
+      toast.error('FlareSolverr session TTL must be 0 or greater.');
+      return;
+    }
+
+    if (!Number.isFinite(nextTimeout) || nextTimeout < 0) {
+      toast.error('FlareSolverr timeout must be 0 or greater.');
+      return;
+    }
+
+    if (enabled && nextUrl && !/^https?:\/\//i.test(nextUrl)) {
+      toast.error('FlareSolverr URL must start with http:// or https://');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const res = await run({
+        flareSolverrEnabled: enabled,
+        flareSolverrSessionName: nextSessionName,
+        flareSolverrSessionTtl: nextSessionTtl,
+        flareSolverrTimeout: nextTimeout,
+        flareSolverrUrl: nextUrl,
+      });
+      if (res.error) toast.error(res.error.message);
+      else {
+        toast.success('FlareSolverr settings saved');
+        refetch({ requestPolicy: 'network-only' });
+      }
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const dirty =
+    !!data &&
+    (enabled !== data.settings.flareSolverrEnabled ||
+      sessionName.trim() !== data.settings.flareSolverrSessionName ||
+      url.trim() !== data.settings.flareSolverrUrl ||
+      sessionTtl !== String(data.settings.flareSolverrSessionTtl) ||
+      timeout !== String(data.settings.flareSolverrTimeout));
+
+  return (
+    <section className="mt-6 rounded-2xl border bg-elevated p-5">
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h3 className="font-display text-lg font-semibold">FlareSolverr</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Configure the external FlareSolverr service used by some protected sources, following the VUI server settings surface.
+          </p>
+        </div>
+        <Toggle checked={enabled} onChange={setEnabled} ariaLabel="Enable FlareSolverr" />
+      </div>
+
+      {error ? (
+        <p className="mt-4 rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {error.message}
+        </p>
+      ) : null}
+
+      <div className="mt-4 space-y-3">
+        <Field
+          label="FlareSolverr URL"
+          placeholder="http://localhost:8191"
+          value={url}
+          onChange={setUrl}
+        />
+        <div className="grid gap-3 md:grid-cols-2">
+          <Field
+            label="Session name"
+            placeholder="suwayomi"
+            value={sessionName}
+            onChange={setSessionName}
+          />
+          <Field
+            label="Session TTL"
+            type="number"
+            value={sessionTtl}
+            onChange={setSessionTtl}
+          />
+        </div>
+        <Field
+          label="Timeout"
+          type="number"
+          value={timeout}
+          onChange={setTimeoutValue}
+        />
+      </div>
+
+      <div className="mt-5 flex items-center justify-between gap-3">
+        <p className="text-xs text-muted-foreground">
+          TTL and timeout are stored as integer values by the server.
+        </p>
+        <button
+          type="button"
+          onClick={save}
+          disabled={!dirty || saving || fetching}
+          className="inline-flex items-center rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-95 disabled:opacity-50"
+        >
+          {saving ? 'Saving…' : 'Save'}
+        </button>
       </div>
     </section>
   );

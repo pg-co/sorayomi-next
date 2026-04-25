@@ -35,18 +35,17 @@ export function useDownloadStatus(): DownloadStatus {
   return useMemo(() => {
     const source = live?.downloadChanged ?? snap?.downloadStatus;
     if (!source) return EMPTY;
-    const queue: QueuedDownload[] = source.queue.map((d) => ({
+    const queue: QueuedDownload[] = source.queue.map((d, index) => ({
       chapterId: d.chapter.id,
       mangaId: d.chapter.mangaId,
       mangaTitle: d.manga.title,
       chapterName: d.chapter.name,
       chapterNumber: d.chapter.chapterNumber,
-      position: d.position,
+      position: index,
       progress: d.progress,
       state: d.state,
       tries: d.tries,
     }));
-    queue.sort((a, b) => a.position - b.position);
     return { state: source.state as DownloaderState, queue };
   }, [snap, live]);
 }

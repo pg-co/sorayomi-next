@@ -8,19 +8,19 @@ import {
   DEQUEUE_CHAPTER_DOC,
   ENQUEUE_CHAPTER_DOC,
 } from './queries';
-import { useDownloadsByChapter } from './use-download-status';
+import type { QueuedDownload } from './use-download-status';
 
 export function DownloadProgressButton({
   chapterId,
   isDownloaded,
+  queued,
   className,
 }: {
   chapterId: number;
   isDownloaded: boolean;
+  queued?: QueuedDownload;
   className?: string;
 }) {
-  const queueMap = useDownloadsByChapter();
-  const queued = queueMap.get(chapterId);
   const [, enqueue] = useMutation(ENQUEUE_CHAPTER_DOC);
   const [, dequeue] = useMutation(DEQUEUE_CHAPTER_DOC);
   const [, del] = useMutation(DELETE_DOWNLOADED_CHAPTER_DOC);

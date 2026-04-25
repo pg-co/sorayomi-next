@@ -25,13 +25,19 @@ export function makeUrqlClient() {
       return { authorization: `Basic ${btoa(`${basicAuth.username}:${basicAuth.password ?? ''}`)}` };
     },
     lazy: true,
-    retryAttempts: Infinity,
-    shouldRetry: () => true,
+    retryAttempts: 5,
+    shouldRetry: (event) => {
+      if (!(event instanceof CloseEvent)) return true;
+      return ![4401, 4403, 1002, 1003, 1008].includes(event.code);
+    },
   });
 
   return createClient({
     url: resolveUrl(HTTP_PATH),
-    fetchOptions: () => ({ headers: { ...authHeader() } }),
+    fetchOptions: () => ({
+      credentials: 'include',
+      headers: { ...authHeader() },
+    }),
     exchanges: [
       cacheExchange({
         keys: {
