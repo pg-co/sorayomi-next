@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useMutation } from 'urql';
 import { FETCH_CHAPTER_PAGES_DOC } from './queries';
+import { preloadAuthenticatedImages } from '@/components/auth-image';
 import { resolveUrl } from '@/lib/server-config';
 
 export type PagesState =
@@ -38,9 +39,5 @@ export function useChapterPages(chapterId: number | null): PagesState {
 }
 
 export function preloadImages(urls: string[]) {
-  for (const url of urls) {
-    const img = new Image();
-    img.decoding = 'async';
-    img.src = url;
-  }
+  preloadAuthenticatedImages(urls);
 }

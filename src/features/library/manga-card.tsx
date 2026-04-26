@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { CloudDownload } from 'lucide-react';
+import { AuthImage } from '@/components/auth-image';
 import { mangaThumbnailUrl } from '@/lib/rest/client';
 import { cn } from '@/lib/utils';
 
@@ -23,7 +24,7 @@ export function MangaCard({ manga, className }: { manga: MangaCardData; classNam
       )}
     >
       <div className="aspect-[2/3] w-full overflow-hidden bg-muted">
-        <img
+        <AuthImage
           src={mangaThumbnailUrl(manga.id)}
           alt=""
           loading="lazy"

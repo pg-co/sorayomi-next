@@ -1,3 +1,4 @@
+import { AuthImage } from '@/components/auth-image';
 import { cn } from '@/lib/utils';
 import type { FitMode } from '../reader-settings-store';
 import { TapZones } from './single';
@@ -35,7 +36,7 @@ export function DoubleMode({
 
 function Page({ src, fit, index }: { src: string; fit: FitMode; index: number }) {
   return (
-    <img
+    <AuthImage
       src={src}
       alt={`Page ${index + 1}`}
       decoding="async"

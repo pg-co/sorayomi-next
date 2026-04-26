@@ -1,3 +1,4 @@
+import { AuthImage } from '@/components/auth-image';
 import { cn } from '@/lib/utils';
 import type { FitMode } from '../reader-settings-store';
 
@@ -23,7 +24,7 @@ export function SingleMode({
       )}
     >
       {url ? (
-        <img
+        <AuthImage
           src={url}
           alt={`Page ${page + 1}`}
           decoding="async"

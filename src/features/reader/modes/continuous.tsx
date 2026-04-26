@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { AuthImage } from '@/components/auth-image';
 import { cn } from '@/lib/utils';
 import type { FitMode } from '../reader-settings-store';
 
@@ -114,7 +115,7 @@ export function ContinuousMode({
       style={{ gap: pagePadding }}
     >
       {pages.map((src, i) => (
-        <img
+        <AuthImage
           key={`${i}-${src}`}
           ref={(el) => {
             itemRefs.current[i] = el;

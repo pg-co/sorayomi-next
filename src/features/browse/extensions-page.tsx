@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router';
 import { useMutation, useQuery } from 'urql';
 import { ArrowLeft, Loader2, RefreshCcw, Upload } from 'lucide-react';
 import { toast } from 'sonner';
+import { AuthImage } from '@/components/auth-image';
 import {
   EXTENSIONS_DOC,
   FETCH_EXTENSIONS_DOC,
@@ -201,7 +202,7 @@ function ExtensionRow({ ext }: { ext: Ext }) {
 
   return (
     <li className="flex items-center gap-3 px-3 py-3">
-      <img
+      <AuthImage
         src={resolveUrl(ext.iconUrl)}
         alt=""
         className="size-10 shrink-0 rounded-lg bg-background object-contain ring-1 ring-border"

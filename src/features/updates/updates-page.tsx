@@ -4,6 +4,7 @@ import { useQuery } from 'urql';
 import { CheckCircle2, CloudDownload, Sparkles } from 'lucide-react';
 import { RECENT_CHAPTERS_DOC } from './queries';
 import { LibraryUpdateButton } from './library-update-button';
+import { AuthImage } from '@/components/auth-image';
 import { mangaThumbnailUrl } from '@/lib/rest/client';
 import { cn } from '@/lib/utils';
 
@@ -55,7 +56,7 @@ export function UpdatesPage() {
                       params={{ mangaId: String(c.mangaId), chapterId: String(c.id) }}
                       className={cn('flex items-center gap-3 px-3 py-3 transition hover:bg-accent', c.isRead && 'opacity-60')}
                     >
-                      <img
+                      <AuthImage
                         src={mangaThumbnailUrl(c.mangaId)}
                         alt=""
                         className="aspect-[2/3] w-10 shrink-0 rounded-md object-cover ring-1 ring-border"
