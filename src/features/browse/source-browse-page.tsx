@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router';
 import { useMutation, useQuery } from 'urql';
 import { ArrowLeft, Search } from 'lucide-react';
 import { FETCH_SOURCE_MANGA_DOC, SOURCE_DETAIL_DOC } from './queries';
+import { AuthImage } from '@/components/auth-image';
 import { MangaCard } from '@/features/library/manga-card';
 import { resolveUrl } from '@/lib/server-config';
 import { cn } from '@/lib/utils';
@@ -48,7 +49,7 @@ export function SourceBrowsePage({ sourceId }: { sourceId: string }) {
 
       <header className="mb-4 flex items-center gap-3">
         {source ? (
-          <img
+          <AuthImage
             src={resolveUrl(source.iconUrl)}
             alt=""
             className="size-10 shrink-0 rounded-xl bg-background object-contain ring-1 ring-border"

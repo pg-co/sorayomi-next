@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router';
 import { useQuery } from 'urql';
 import { ChevronRight, Compass, Languages, Puzzle, Search } from 'lucide-react';
 import { SOURCES_DOC } from './queries';
+import { AuthImage } from '@/components/auth-image';
 import { resolveUrl } from '@/lib/server-config';
 import { useShowNsfw } from '@/lib/client-prefs';
 import { cn } from '@/lib/utils';
@@ -132,7 +133,7 @@ export function SourcesPage({ initialFilter }: { initialFilter?: string } = {}) 
                       params={{ sourceId: String(s.id) }}
                       className="flex items-center gap-3 px-3 py-3 transition hover:bg-accent"
                     >
-                      <img
+                      <AuthImage
                         src={resolveUrl(s.iconUrl)}
                         alt=""
                         className="size-8 shrink-0 rounded-lg bg-background object-contain ring-1 ring-border"

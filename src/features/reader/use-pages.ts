@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useMutation } from 'urql';
 import { FETCH_CHAPTER_PAGES_DOC } from './queries';
+import { preloadAuthenticatedImages } from '@/components/auth-image';
 import { resolveUrl } from '@/lib/server-config';
 
 export type ReaderStreamPage = {
@@ -11,6 +12,7 @@ export type ReaderStreamPage = {
   chapterPageIndex: number;
   chapterPageCount: number;
 };
+
 
 export type PagesState =
   | { status: 'idle' }
@@ -35,6 +37,7 @@ export function useChapterPageLoader() {
 
 export function useChapterPages(chapterId: number | null): PagesState {
   const loadChapterPages = useChapterPageLoader();
+
   const [state, setState] = useState<PagesState>({ status: 'idle' });
 
   useEffect(() => {
@@ -61,6 +64,7 @@ export function useChapterPages(chapterId: number | null): PagesState {
     };
   }, [chapterId, loadChapterPages]);
 
+
   return state;
 }
 
@@ -80,9 +84,6 @@ export function flattenChapterPages(
 }
 
 export function preloadImages(urls: string[]) {
-  for (const url of urls) {
-    const img = new Image();
-    img.decoding = 'async';
-    img.src = url;
-  }
+  preloadAuthenticatedImages(urls);
 }
+

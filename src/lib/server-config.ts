@@ -39,3 +39,19 @@ export function authHeader(): Record<string, string> {
   const token = btoa(`${basicAuth.username}:${basicAuth.password ?? ''}`);
   return { Authorization: `Basic ${token}` };
 }
+
+export function shouldUseAuthenticatedAssetFetch(pathOrUrl: string): boolean {
+  if (!pathOrUrl || /^(data|blob):/i.test(pathOrUrl)) return false;
+  const { basicAuth, url } = readServerConfig();
+  if (!basicAuth?.username) return false;
+  if (!/^https?:\/\//i.test(pathOrUrl)) return true;
+  if (typeof window === 'undefined') return false;
+
+  const target = new URL(pathOrUrl, window.location.href);
+  const base = url ? new URL(url, window.location.href) : new URL(window.location.origin);
+  if (target.origin !== base.origin) return false;
+
+  const basePath = base.pathname.replace(/\/+$/, '');
+  if (!basePath || basePath === '/') return true;
+  return target.pathname === basePath || target.pathname.startsWith(`${basePath}/`);
+}

@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import { AuthImage } from '@/components/auth-image';
 import { cn } from '@/lib/utils';
 import type { FitMode } from '../reader-settings-store';
 import type { ReaderStreamPage } from '../use-pages';
+
 
 export function ContinuousMode({
   pages,
@@ -16,6 +18,7 @@ export function ContinuousMode({
   onEndReached,
 }: {
   pages: ReaderStreamPage[];
+
   page: number;
   axis: 'vertical' | 'horizontal';
   fit: FitMode;
@@ -31,6 +34,7 @@ export function ContinuousMode({
   const lastReportedPageRef = useRef(page);
   const scrollFrameRef = useRef<number | null>(null);
   const endFiredForLengthRef = useRef(0);
+
   const virtualizer = useVirtualizer({
     count: pages.length,
     getScrollElement: () => containerRef.current,
@@ -86,6 +90,7 @@ export function ContinuousMode({
       align: 'start',
       behavior: 'smooth',
     });
+
     const t = window.setTimeout(() => {
       externalScrollRef.current = false;
       reportVisiblePage();
@@ -130,6 +135,7 @@ export function ContinuousMode({
           onTapZone(r < 0.3 ? 'prev' : r > 0.7 ? 'next' : 'center');
         }
       }}
+
       className={cn(
         'h-full w-full overflow-auto',
         axis === 'vertical' ? 'overflow-x-hidden' : 'overflow-y-hidden',
@@ -176,7 +182,7 @@ export function ContinuousMode({
                 axis === 'vertical' ? 'min-h-screen' : 'h-full',
               )}
             >
-              <img
+              <AuthImage
                 src={pageItem.src}
                 alt={`Page ${pageItem.chapterPageIndex + 1}`}
                 decoding="async"

@@ -6,6 +6,7 @@ import { ArrowLeft, BookmarkCheck, BookOpen, CheckCircle2, CloudDownload, Folder
 import { MANGA_CHAPTERS_DOC, MANGA_DETAIL_DOC, UPDATE_MANGA_LIBRARY_DOC } from './queries';
 import { CategoryPicker } from './category-picker';
 import type { MangaChaptersQuery, MangaDetailQuery } from '@/lib/graphql/__generated__/graphql';
+import { AuthImage } from '@/components/auth-image';
 import { mangaThumbnailUrl } from '@/lib/rest/client';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -45,7 +46,7 @@ function Hero({ manga, onLibraryChange }: { manga: DetailManga; onLibraryChange:
     <header className="relative overflow-hidden">
       {/* Backdrop */}
       <div className="absolute inset-0 -z-10">
-        <img
+        <AuthImage
           src={mangaThumbnailUrl(manga.id)}
           alt=""
           className="size-full object-cover opacity-40 blur-2xl saturate-150"
@@ -63,7 +64,7 @@ function Hero({ manga, onLibraryChange }: { manga: DetailManga; onLibraryChange:
         </Link>
 
         <div className="flex flex-col items-center gap-5 md:grid md:grid-cols-[200px_1fr] md:items-start md:gap-8">
-          <img
+          <AuthImage
             src={mangaThumbnailUrl(manga.id)}
             alt=""
             className="aspect-[2/3] w-32 rounded-2xl object-cover shadow-lg ring-1 ring-border md:w-full"
@@ -406,4 +407,3 @@ function formatDate(iso: string | number) {
   if (!Number.isFinite(ms)) return '';
   return new Date(ms).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 }
-

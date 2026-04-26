@@ -2,6 +2,7 @@ import { useMutation } from 'urql';
 import { Link } from '@tanstack/react-router';
 import { CloudDownload, Pause, Play, Trash2, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { AuthImage } from '@/components/auth-image';
 import { cn } from '@/lib/utils';
 import { mangaThumbnailUrl } from '@/lib/rest/client';
 import {
@@ -76,7 +77,7 @@ export function DownloadsPage() {
                 params={{ mangaId: String(d.mangaId) }}
                 className="shrink-0"
               >
-                <img
+                <AuthImage
                   src={mangaThumbnailUrl(d.mangaId)}
                   alt=""
                   className="aspect-[2/3] w-10 rounded-md object-cover ring-1 ring-border"

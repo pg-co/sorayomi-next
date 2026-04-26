@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from 'urql';
+import { AuthImage } from '@/components/auth-image';
 import { cn } from '@/lib/utils';
 import { mangaThumbnailUrl } from '@/lib/rest/client';
 import { PALETTE_LIBRARY_SEARCH_DOC } from './palette-search-queries';
@@ -120,7 +121,7 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
                         }}
                         className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground data-[selected=true]:bg-accent"
                       >
-                        <img
+                        <AuthImage
                           src={mangaThumbnailUrl(m.id)}
                           alt=""
                           className="size-8 shrink-0 rounded object-cover ring-1 ring-border"
