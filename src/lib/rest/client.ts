@@ -7,8 +7,16 @@ import { authHeader, resolveUrl } from '@/lib/server-config';
  */
 export const rest = ky.create({
   prefixUrl: '',
-  credentials: 'include',
+  credentials: 'omit',
   hooks: {
+    afterResponse: [
+      (_req, _opts, res) => {
+        if (res.status === 401) {
+          window.dispatchEvent(new CustomEvent('sorayomi:auth-required'));
+        }
+        return res;
+      },
+    ],
     beforeRequest: [
       (req) => {
         const url = new URL(req.url);

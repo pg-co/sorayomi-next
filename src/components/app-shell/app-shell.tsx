@@ -1,4 +1,6 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useNavigate } from '@tanstack/react-router';
+import { toast } from 'sonner';
 import { SideRail } from './side-rail';
 import { TopBar } from './top-bar';
 import { BottomNav } from './bottom-nav';
@@ -6,6 +8,9 @@ import { CommandPalette } from './command-palette';
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const navigate = useNavigate();
+  const navigateRef = useRef(navigate);
+  navigateRef.current = navigate;
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -17,6 +22,22 @@ export function AppShell({ children }: { children: ReactNode }) {
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  useEffect(() => {
+    let lastShown = 0;
+    function onAuthRequired() {
+      const now = Date.now();
+      // Debounce: one toast per 10 s to avoid spam from multiple concurrent requests.
+      if (now - lastShown < 10_000) return;
+      lastShown = now;
+      toast.error('Server requires authentication. Configure credentials in Settings → Server.', {
+        action: { label: 'Settings', onClick: () => navigateRef.current({ to: '/settings' }) },
+        duration: 8000,
+      });
+    }
+    window.addEventListener('sorayomi:auth-required', onAuthRequired);
+    return () => window.removeEventListener('sorayomi:auth-required', onAuthRequired);
   }, []);
 
   return (
