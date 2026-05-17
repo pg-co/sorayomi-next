@@ -16,6 +16,14 @@ function wsUrl(): string {
   return `${proto}//${window.location.host}${WS_PATH}`;
 }
 
+async function authedFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  const res = await fetch(input, init);
+  if (res.status === 401) {
+    window.dispatchEvent(new CustomEvent('sorayomi:auth-required'));
+  }
+  return res;
+}
+
 export function makeUrqlClient() {
   const wsClient = createWsClient({
     url: wsUrl,
@@ -34,8 +42,9 @@ export function makeUrqlClient() {
 
   return createClient({
     url: resolveUrl(HTTP_PATH),
+    fetch: authedFetch,
     fetchOptions: () => ({
-      credentials: 'include',
+      credentials: 'omit',
       headers: { ...authHeader() },
     }),
     exchanges: [
