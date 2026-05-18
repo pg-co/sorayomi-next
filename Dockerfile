@@ -5,9 +5,9 @@ WORKDIR /app
 ENV PNPM_HOME=/pnpm
 ENV PATH=$PNPM_HOME:$PATH
 
-RUN corepack enable
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY codegen.ts components.json index.html schema.graphql ./
 COPY tsconfig.app.json tsconfig.json tsconfig.node.json vite.config.ts ./
 COPY public ./public
