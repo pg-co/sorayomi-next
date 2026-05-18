@@ -18,7 +18,9 @@ RUN pnpm build
 
 FROM nginx:1.27-alpine AS runtime
 
-COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+ENV SUWAYOMI_URL=http://localhost:4567
+
+COPY docker/default.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=build /app/dist /usr/share/nginx/html
 
 EXPOSE 80
