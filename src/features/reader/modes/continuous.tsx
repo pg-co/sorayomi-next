@@ -1,6 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { AuthImage } from '@/components/auth-image';
 import { cn } from '@/lib/utils';
 import type { FitMode } from '../reader-settings-store';
+import type { ReaderStreamPage } from '../use-pages';
+
 
 export function ContinuousMode({
   pages,
@@ -13,7 +17,8 @@ export function ContinuousMode({
   onTapZone,
   onEndReached,
 }: {
-  pages: string[];
+  pages: ReaderStreamPage[];
+
   page: number;
   axis: 'vertical' | 'horizontal';
   fit: FitMode;
@@ -24,78 +29,102 @@ export function ContinuousMode({
   onEndReached?: () => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const itemRefs = useRef<(HTMLImageElement | null)[]>([]);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const externalScrollRef = useRef(false);
   const lastReportedPageRef = useRef(page);
-  const endFiredRef = useRef(false);
+  const scrollFrameRef = useRef<number | null>(null);
+  const endFiredForLengthRef = useRef(0);
+
+  const virtualizer = useVirtualizer({
+    count: pages.length,
+    getScrollElement: () => containerRef.current,
+    estimateSize: () => (axis === 'vertical' ? 960 : 720),
+    horizontal: axis === 'horizontal',
+    overscan: 2,
+  });
+
+  const reportVisiblePage = useCallback(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const virtualItems = virtualizer.getVirtualItems();
+    if (virtualItems.length === 0) return;
+
+    const viewportCenter =
+      axis === 'vertical'
+        ? container.scrollTop + container.clientHeight / 2
+        : container.scrollLeft + container.clientWidth / 2;
+
+    let bestIndex = virtualItems[0].index;
+    let bestDistance = Number.POSITIVE_INFINITY;
+
+    for (const item of virtualItems) {
+      const center = item.start + item.size / 2;
+      const distance = Math.abs(center - viewportCenter);
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestIndex = item.index;
+      }
+    }
+
+    if (!externalScrollRef.current && bestIndex !== lastReportedPageRef.current) {
+      lastReportedPageRef.current = bestIndex;
+      onPageChange(bestIndex);
+    }
+
+    if (
+      onEndReached &&
+      virtualItems[virtualItems.length - 1]?.index >= pages.length - 1 &&
+      endFiredForLengthRef.current !== pages.length
+    ) {
+      endFiredForLengthRef.current = pages.length;
+      onEndReached();
+    }
+  }, [axis, onEndReached, onPageChange, pages.length, virtualizer]);
 
   // Scroll to the active page only when the parent moved it externally
   // (slider, keyboard) — not when the user is naturally scrolling.
   useEffect(() => {
     if (page === lastReportedPageRef.current) return;
-    const el = itemRefs.current[page];
-    if (!el) return;
     externalScrollRef.current = true;
-    el.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'start' });
+    virtualizer.scrollToIndex(page, {
+      align: 'start',
+      behavior: 'smooth',
+    });
+
     const t = window.setTimeout(() => {
       externalScrollRef.current = false;
+      reportVisiblePage();
     }, 600);
     return () => window.clearTimeout(t);
-  }, [page]);
-
-  // Detect which page is currently most visible and report back.
-  useEffect(() => {
-    const root = containerRef.current;
-    if (!root) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (externalScrollRef.current) return;
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-        if (visible[0]) {
-          const idx = Number((visible[0].target as HTMLElement).dataset.index);
-          if (Number.isFinite(idx)) {
-            lastReportedPageRef.current = idx;
-            onPageChange(idx);
-          }
-        }
-      },
-      { root, threshold: [0.4, 0.6, 0.8] },
-    );
-    itemRefs.current.forEach((el) => el && observer.observe(el));
-    return () => observer.disconnect();
-  }, [pages.length, onPageChange]);
+  }, [page, reportVisiblePage, virtualizer]);
 
   // Reset end-reached guard when chapter (pages) changes.
   useEffect(() => {
-    endFiredRef.current = false;
-  }, [pages]);
+    endFiredForLengthRef.current = 0;
+    reportVisiblePage();
+  }, [pages.length, reportVisiblePage]);
 
-  // Sentinel at the end → fire onEndReached once when it scrolls into view.
-  useEffect(() => {
-    const root = containerRef.current;
-    const sentinel = sentinelRef.current;
-    if (!root || !sentinel || !onEndReached) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting && !endFiredRef.current) {
-            endFiredRef.current = true;
-            onEndReached();
-          }
-        }
-      },
-      { root, threshold: 0.5 },
-    );
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, [onEndReached, pages.length]);
+  useEffect(
+    () => () => {
+      if (scrollFrameRef.current != null) {
+        window.cancelAnimationFrame(scrollFrameRef.current);
+      }
+    },
+    [],
+  );
 
   return (
     <div
       ref={containerRef}
+      onScroll={() => {
+        if (scrollFrameRef.current != null) {
+          window.cancelAnimationFrame(scrollFrameRef.current);
+        }
+        scrollFrameRef.current = window.requestAnimationFrame(() => {
+          scrollFrameRef.current = null;
+          reportVisiblePage();
+        });
+      }}
       onClick={(e) => {
         const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
         if (axis === 'vertical') {
@@ -106,36 +135,74 @@ export function ContinuousMode({
           onTapZone(r < 0.3 ? 'prev' : r > 0.7 ? 'next' : 'center');
         }
       }}
+
       className={cn(
         'h-full w-full overflow-auto',
-        axis === 'vertical' ? 'flex flex-col items-center' : 'flex flex-row items-center',
+        axis === 'vertical' ? 'overflow-x-hidden' : 'overflow-y-hidden',
         pixelated && 'reader-pixelated',
       )}
-      style={{ gap: pagePadding }}
     >
-      {pages.map((src, i) => (
-        <img
-          key={`${i}-${src}`}
-          ref={(el) => {
-            itemRefs.current[i] = el;
-          }}
-          data-index={i}
-          src={src}
-          alt={`Page ${i + 1}`}
-          decoding="async"
-          draggable={false}
-          className={cn(
-            'block select-none',
-            axis === 'vertical' && fit === 'width' && 'h-auto w-full max-w-screen-md',
-            axis === 'vertical' && fit === 'height' && 'h-screen w-auto',
-            axis === 'vertical' && fit === 'original' && 'h-auto w-auto',
-            axis === 'horizontal' && fit === 'height' && 'h-full w-auto',
-            axis === 'horizontal' && fit === 'width' && 'h-auto w-screen',
-            axis === 'horizontal' && fit === 'original' && 'h-auto w-auto',
-          )}
-          loading={i < 3 ? 'eager' : 'lazy'}
-        />
-      ))}
+      <div
+        style={
+          axis === 'vertical'
+            ? { height: virtualizer.getTotalSize(), position: 'relative', width: '100%' }
+            : { height: '100%', position: 'relative', width: virtualizer.getTotalSize() }
+        }
+      >
+        {virtualizer.getVirtualItems().map((item) => {
+          const pageItem = pages[item.index];
+          if (!pageItem) return null;
+
+          return (
+            <div
+              key={pageItem.key}
+              ref={virtualizer.measureElement}
+              data-index={item.index}
+              style={
+                axis === 'vertical'
+                  ? {
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      transform: `translateY(${item.start}px)`,
+                      width: '100%',
+                      paddingBottom: item.index === pages.length - 1 ? 0 : pagePadding,
+                    }
+                  : {
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      transform: `translateX(${item.start}px)`,
+                      height: '100%',
+                      paddingRight: item.index === pages.length - 1 ? 0 : pagePadding,
+                    }
+              }
+              className={cn(
+                'grid place-items-center',
+                axis === 'vertical' ? 'min-h-screen' : 'h-full',
+              )}
+            >
+              <AuthImage
+                src={pageItem.src}
+                alt={`Page ${pageItem.chapterPageIndex + 1}`}
+                decoding="async"
+                draggable={false}
+                onLoad={() => virtualizer.measure()}
+                className={cn(
+                  'block select-none',
+                  axis === 'vertical' && fit === 'width' && 'h-auto w-full max-w-screen-md',
+                  axis === 'vertical' && fit === 'height' && 'h-screen w-auto',
+                  axis === 'vertical' && fit === 'original' && 'h-auto w-auto',
+                  axis === 'horizontal' && fit === 'height' && 'h-full w-auto',
+                  axis === 'horizontal' && fit === 'width' && 'h-auto w-screen',
+                  axis === 'horizontal' && fit === 'original' && 'h-auto w-auto',
+                )}
+                loading={item.index < 3 ? 'eager' : 'lazy'}
+              />
+            </div>
+          );
+        })}
+      </div>
       <div
         ref={sentinelRef}
         aria-hidden

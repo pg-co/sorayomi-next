@@ -1,7 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useMutation } from 'urql';
 import { FETCH_CHAPTER_PAGES_DOC } from './queries';
+import { preloadAuthenticatedImages } from '@/components/auth-image';
 import { resolveUrl } from '@/lib/server-config';
+
+export type ReaderStreamPage = {
+  key: string;
+  src: string;
+  chapterId: number;
+  chapterIndex: number;
+  chapterPageIndex: number;
+  chapterPageCount: number;
+};
+
 
 export type PagesState =
   | { status: 'idle' }
@@ -9,8 +20,24 @@ export type PagesState =
   | { status: 'ready'; pages: string[] }
   | { status: 'error'; message: string };
 
-export function useChapterPages(chapterId: number | null): PagesState {
+export function useChapterPageLoader() {
   const [, run] = useMutation(FETCH_CHAPTER_PAGES_DOC);
+
+  return useCallback(
+    async (chapterId: number) => {
+      const res = await run({ chapterId });
+      if (res.error) {
+        throw res.error;
+      }
+      return (res.data?.fetchChapterPages?.pages ?? []).map((page) => resolveUrl(page));
+    },
+    [run],
+  );
+}
+
+export function useChapterPages(chapterId: number | null): PagesState {
+  const loadChapterPages = useChapterPageLoader();
+
   const [state, setState] = useState<PagesState>({ status: 'idle' });
 
   useEffect(() => {
@@ -20,27 +47,43 @@ export function useChapterPages(chapterId: number | null): PagesState {
     }
     let cancelled = false;
     setState({ status: 'loading' });
-    run({ chapterId }).then((res) => {
-      if (cancelled) return;
-      if (res.error) {
-        setState({ status: 'error', message: res.error.message });
-        return;
-      }
-      const pages = res.data?.fetchChapterPages?.pages ?? [];
-      setState({ status: 'ready', pages: pages.map((p) => resolveUrl(p)) });
-    });
+    loadChapterPages(chapterId)
+      .then((pages) => {
+        if (cancelled) return;
+        setState({ status: 'ready', pages });
+      })
+      .catch((error: unknown) => {
+        if (cancelled) return;
+        setState({
+          status: 'error',
+          message: error instanceof Error ? error.message : 'Failed to load chapter pages.',
+        });
+      });
     return () => {
       cancelled = true;
     };
-  }, [chapterId, run]);
+  }, [chapterId, loadChapterPages]);
+
 
   return state;
 }
 
-export function preloadImages(urls: string[]) {
-  for (const url of urls) {
-    const img = new Image();
-    img.decoding = 'async';
-    img.src = url;
-  }
+export function flattenChapterPages(
+  chapters: ReadonlyArray<{ chapterId: number; pages: ReadonlyArray<string> }>,
+): ReaderStreamPage[] {
+  return chapters.flatMap((chapter, chapterIndex) =>
+    chapter.pages.map((src, chapterPageIndex) => ({
+      key: `${chapter.chapterId}:${chapterPageIndex}`,
+      src,
+      chapterId: chapter.chapterId,
+      chapterIndex,
+      chapterPageIndex,
+      chapterPageCount: chapter.pages.length,
+    })),
+  );
 }
+
+export function preloadImages(urls: string[]) {
+  preloadAuthenticatedImages(urls);
+}
+

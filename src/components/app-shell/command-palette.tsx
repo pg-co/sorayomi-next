@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from 'urql';
+import { AuthImage } from '@/components/auth-image';
 import { cn } from '@/lib/utils';
 import { mangaThumbnailUrl } from '@/lib/rest/client';
 import { PALETTE_LIBRARY_SEARCH_DOC } from './palette-search-queries';
@@ -91,12 +92,12 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
             autoFocus
             value={query}
             onValueChange={setQuery}
-            placeholder="Search manga, sources, actions…"
+            placeholder="Search manga, sources, actions..."
             className="h-12 w-full border-b bg-transparent px-4 text-sm outline-none placeholder:text-muted-foreground"
           />
           <Command.List className="max-h-[60vh] overflow-y-auto p-2 scrollbar-thin">
             <Command.Empty className="px-3 py-6 text-center text-sm text-muted-foreground">
-              {searching && fetching ? 'Searching…' : 'No results.'}
+              {searching && fetching ? 'Searching...' : 'No results.'}
             </Command.Empty>
 
             {searching ? (
@@ -120,7 +121,7 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
                         }}
                         className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground data-[selected=true]:bg-accent"
                       >
-                        <img
+                        <AuthImage
                           src={mangaThumbnailUrl(m.id)}
                           alt=""
                           className="size-8 shrink-0 rounded object-cover ring-1 ring-border"
@@ -138,13 +139,13 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
                   <Command.Item
                     value={`source-search-${debounced}`}
                     onSelect={() => {
-                      navigate({ to: '/browse', search: { q: debounced } });
+                      navigate({ to: '/browse/search', search: { q: debounced } });
                       onOpenChange(false);
                     }}
                     className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground data-[selected=true]:bg-accent"
                   >
                     <Search className="size-4 text-muted-foreground" />
-                    <span>Search sources for “{debounced}”</span>
+                    <span>Search all sources for &quot;{debounced}&quot;</span>
                   </Command.Item>
                 </Command.Group>
               </>

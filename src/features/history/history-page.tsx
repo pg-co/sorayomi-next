@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router';
 import { useQuery } from 'urql';
 import { History as HistoryIcon } from 'lucide-react';
 import { HISTORY_DOC } from './queries';
+import { AuthImage } from '@/components/auth-image';
 import { mangaThumbnailUrl } from '@/lib/rest/client';
 
 export function HistoryPage() {
@@ -68,7 +69,7 @@ export function HistoryPage() {
                     params={{ mangaId: String(c.mangaId), chapterId: String(c.id) }}
                     className="flex items-center gap-3 px-3 py-3 transition hover:bg-accent"
                   >
-                    <img
+                    <AuthImage
                       src={mangaThumbnailUrl(c.mangaId)}
                       alt=""
                       className="aspect-[2/3] h-14 w-10 shrink-0 rounded object-cover ring-1 ring-border"

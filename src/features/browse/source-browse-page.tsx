@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router';
 import { useMutation, useQuery } from 'urql';
 import { ArrowLeft, Search } from 'lucide-react';
 import { FETCH_SOURCE_MANGA_DOC, SOURCE_DETAIL_DOC } from './queries';
+import { AuthImage } from '@/components/auth-image';
 import { MangaCard } from '@/features/library/manga-card';
 import { resolveUrl } from '@/lib/server-config';
 import { cn } from '@/lib/utils';
@@ -19,16 +20,24 @@ type Item = {
   downloadCount: number;
 };
 
-export function SourceBrowsePage({ sourceId }: { sourceId: string }) {
+export function SourceBrowsePage({
+  sourceId,
+  initialTab,
+  initialQuery,
+}: {
+  sourceId: string;
+  initialTab?: FetchSourceMangaType;
+  initialQuery?: string;
+}) {
   const [{ data: srcData }] = useQuery({
     query: SOURCE_DETAIL_DOC,
     variables: { id: sourceId },
   });
   const source = srcData?.source;
 
-  const [tab, setTab] = useState<Tab>(FetchSourceMangaType.Popular);
-  const [query, setQuery] = useState('');
-  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [tab, setTab] = useState<Tab>(initialTab ?? FetchSourceMangaType.Popular);
+  const [query, setQuery] = useState(initialQuery ?? '');
+  const [debouncedQuery, setDebouncedQuery] = useState(initialQuery ?? '');
 
   useEffect(() => {
     const t = window.setTimeout(() => setDebouncedQuery(query), 400);
@@ -48,7 +57,7 @@ export function SourceBrowsePage({ sourceId }: { sourceId: string }) {
 
       <header className="mb-4 flex items-center gap-3">
         {source ? (
-          <img
+          <AuthImage
             src={resolveUrl(source.iconUrl)}
             alt=""
             className="size-10 shrink-0 rounded-xl bg-background object-contain ring-1 ring-border"
