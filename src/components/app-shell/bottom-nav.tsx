@@ -10,7 +10,7 @@ export function BottomNav({ className }: { className?: string }) {
   return (
     <nav
       className={cn(
-        'fixed inset-x-0 bottom-0 z-30 grid border-t bg-rail/95 backdrop-blur',
+        'glass-strong fixed inset-x-0 bottom-0 z-30 grid border-x-0 border-b-0',
         'pb-[env(safe-area-inset-bottom)]',
         className,
       )}
@@ -23,14 +23,14 @@ export function BottomNav({ className }: { className?: string }) {
             key={item.to}
             to={item.to}
             className={cn(
-              'flex flex-col items-center justify-center gap-0.5 py-2 text-[11px] font-medium text-muted-foreground transition',
+              'group flex flex-col items-center justify-center gap-0.5 py-2 text-[11px] font-medium text-muted-foreground transition-colors',
               'data-[status=active]:text-primary',
             )}
           >
-            <span className="relative">
+            <span className="relative grid size-9 place-items-center rounded-xl transition-all group-data-[status=active]:bg-primary/12 group-data-[status=active]:text-primary group-data-[status=active]:shadow-[0_0_16px_-4px_var(--accent-cyan)]">
               <item.icon className="size-5" />
               {showDownloads ? (
-                <span className="absolute -right-2 -top-1 inline-flex min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold tabular-nums text-primary-foreground ring-2 ring-rail">
+                <span className="glow-magenta absolute -right-1 -top-1 inline-flex min-w-4 items-center justify-center rounded-full bg-accent-magenta px-1 font-mono text-[10px] font-semibold tabular-nums text-white">
                   {downloadsCount > 99 ? '99+' : downloadsCount}
                 </span>
               ) : null}

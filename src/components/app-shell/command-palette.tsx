@@ -78,23 +78,26 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
 
   return (
     <div
-      className="fixed inset-0 z-50 grid place-items-start bg-black/40 px-4 pt-[10vh] backdrop-blur-sm"
+      className="fixed inset-0 z-50 grid place-items-start bg-background/60 px-4 pt-[10vh] backdrop-blur-md"
       onClick={() => onOpenChange(false)}
     >
       <div
         className={cn(
-          'mx-auto w-full max-w-xl overflow-hidden rounded-2xl border bg-elevated shadow-2xl',
+          'glass-strong mx-auto w-full max-w-xl overflow-hidden rounded-2xl shadow-2xl shadow-[0_0_40px_-12px_var(--accent-cyan)]',
         )}
         onClick={(e) => e.stopPropagation()}
       >
         <Command label="Command palette" className="flex flex-col" shouldFilter={!searching}>
-          <Command.Input
-            autoFocus
-            value={query}
-            onValueChange={setQuery}
-            placeholder="Search manga, sources, actions…"
-            className="h-12 w-full border-b bg-transparent px-4 text-sm outline-none placeholder:text-muted-foreground"
-          />
+          <div className="flex items-center gap-2.5 border-b border-glass-border px-4">
+            <Search className="size-4 shrink-0 text-primary" />
+            <Command.Input
+              autoFocus
+              value={query}
+              onValueChange={setQuery}
+              placeholder="Search manga, sources, actions…"
+              className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            />
+          </div>
           <Command.List className="max-h-[60vh] overflow-y-auto p-2 scrollbar-thin">
             <Command.Empty className="px-3 py-6 text-center text-sm text-muted-foreground">
               {searching && fetching ? 'Searching…' : 'No results.'}
@@ -119,7 +122,7 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
                           navigate({ to: '/manga/$mangaId', params: { mangaId: String(m.id) } });
                           onOpenChange(false);
                         }}
-                        className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground data-[selected=true]:bg-accent"
+                        className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground transition-colors data-[selected=true]:bg-accent/60 data-[selected=true]:shadow-[inset_2px_0_0_var(--accent-cyan)]"
                       >
                         <AuthImage
                           src={mangaThumbnailUrl(m.id)}
@@ -142,7 +145,7 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
                       navigate({ to: '/browse/search', search: { q: debounced } });
                       onOpenChange(false);
                     }}
-                    className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground data-[selected=true]:bg-accent"
+                    className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground transition-colors data-[selected=true]:bg-accent/60 data-[selected=true]:shadow-[inset_2px_0_0_var(--accent-cyan)]"
                   >
                     <Search className="size-4 text-muted-foreground" />
                     <span>Search sources for “{debounced}”</span>
@@ -159,7 +162,7 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
                       a.perform();
                       onOpenChange(false);
                     }}
-                    className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground data-[selected=true]:bg-accent"
+                    className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground transition-colors data-[selected=true]:bg-accent/60 data-[selected=true]:shadow-[inset_2px_0_0_var(--accent-cyan)]"
                   >
                     <a.icon className="size-4 text-muted-foreground" />
                     <span>{a.label}</span>

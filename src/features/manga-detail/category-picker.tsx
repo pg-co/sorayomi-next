@@ -77,23 +77,23 @@ export function CategoryPicker({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm md:items-center"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-background/60 backdrop-blur-md md:items-center"
       onClick={onClose}
     >
       <div
         className={cn(
-          'w-full max-h-[80vh] overflow-hidden border bg-elevated shadow-2xl',
+          'glass-strong w-full max-h-[80vh] overflow-hidden shadow-2xl shadow-[0_0_40px_-12px_var(--accent-cyan)]',
           'rounded-t-2xl md:max-w-md md:rounded-2xl',
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        <header className="flex items-center justify-between border-b px-4 py-3">
-          <h3 className="font-display text-lg font-semibold tracking-tight">Categories</h3>
+        <header className="flex items-center justify-between border-b border-glass-border px-4 py-3">
+          <h3 className="font-display text-lg font-semibold uppercase tracking-tight">Categories</h3>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="rounded-lg p-1 text-muted-foreground transition hover:bg-accent hover:text-foreground"
+            className="rounded-lg p-1 text-muted-foreground transition hover:bg-accent/50 hover:text-foreground"
           >
             <X className="size-4" />
           </button>
@@ -117,14 +117,14 @@ export function CategoryPicker({
                     <button
                       type="button"
                       onClick={() => toggle(cat.id)}
-                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition hover:bg-accent"
+                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition hover:bg-accent/40"
                     >
                       <span
                         className={cn(
                           'grid size-5 shrink-0 place-items-center rounded border transition',
                           checked
-                            ? 'border-primary bg-primary text-primary-foreground'
-                            : 'border-border bg-background',
+                            ? 'border-primary bg-primary text-primary-foreground shadow-[0_0_12px_-2px_var(--accent-cyan)]'
+                            : 'border-glass-border bg-background/40',
                         )}
                       >
                         {checked ? <Check className="size-3.5" /> : null}
@@ -138,11 +138,11 @@ export function CategoryPicker({
           )}
         </div>
 
-        <footer className="flex items-center justify-end gap-2 border-t bg-background/40 px-4 py-3">
+        <footer className="flex items-center justify-end gap-2 border-t border-glass-border bg-background/20 px-4 py-3">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-foreground"
+            className="rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-accent/40 hover:text-foreground"
           >
             Cancel
           </button>
@@ -150,7 +150,7 @@ export function CategoryPicker({
             type="button"
             onClick={save}
             disabled={saving}
-            className="rounded-xl bg-primary px-3 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-95 disabled:opacity-60"
+            className="glow-cyan rounded-xl bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground transition hover:brightness-110 disabled:opacity-60"
           >
             {saving ? 'Saving…' : 'Save'}
           </button>

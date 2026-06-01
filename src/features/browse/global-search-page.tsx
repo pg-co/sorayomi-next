@@ -89,13 +89,13 @@ export function GlobalSearchPage({ initialQuery }: { initialQuery?: string }) {
     <div className="px-4 py-6 md:px-8">
       <Link
         to="/browse"
-        className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
+        className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-primary"
       >
         <ArrowLeft className="size-4" /> Sources
       </Link>
 
-      <header className="mb-4">
-        <h2 className="font-display text-3xl font-semibold tracking-tight">Global search</h2>
+      <header className="reveal mb-4">
+        <h2 className="font-display text-3xl font-semibold uppercase tracking-tight">Global search</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Search every installed source at once. Use the language chips to narrow down.
         </p>
@@ -109,7 +109,7 @@ export function GlobalSearchPage({ initialQuery }: { initialQuery?: string }) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Search across all sources…"
-            className="h-10 w-full rounded-xl border bg-elevated pl-9 pr-3 text-sm outline-none transition focus:ring-2 focus:ring-ring"
+            className="glass h-10 w-full rounded-xl pl-9 pr-3 text-sm outline-none transition focus:border-primary/50 focus:shadow-[0_0_18px_-6px_var(--accent-cyan)]"
             autoFocus
           />
         </label>
@@ -117,10 +117,10 @@ export function GlobalSearchPage({ initialQuery }: { initialQuery?: string }) {
           type="button"
           onClick={() => setHideEmpty((v) => !v)}
           className={cn(
-            'inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition',
+            'inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition',
             hideEmpty
-              ? 'bg-primary/10 text-primary'
-              : 'bg-elevated text-muted-foreground hover:text-foreground',
+              ? 'border border-primary/50 bg-primary/10 text-primary shadow-[0_0_16px_-6px_var(--accent-cyan)]'
+              : 'glass text-muted-foreground hover:text-foreground',
           )}
         >
           Hide empty {hideEmpty ? 'on' : 'off'}
@@ -129,10 +129,10 @@ export function GlobalSearchPage({ initialQuery }: { initialQuery?: string }) {
           type="button"
           onClick={() => setShowNsfw(!showNsfw)}
           className={cn(
-            'inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition',
+            'inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition',
             showNsfw
-              ? 'bg-primary/10 text-primary'
-              : 'bg-elevated text-muted-foreground hover:text-foreground',
+              ? 'border border-accent-magenta/50 bg-accent-magenta/10 text-accent-magenta shadow-[0_0_16px_-6px_var(--accent-magenta)]'
+              : 'glass text-muted-foreground hover:text-foreground',
           )}
         >
           NSFW {showNsfw ? 'on' : 'off'}
@@ -160,11 +160,11 @@ export function GlobalSearchPage({ initialQuery }: { initialQuery?: string }) {
       ) : null}
 
       {debounced.length < 2 ? (
-        <p className="rounded-xl border border-dashed bg-elevated/40 px-4 py-12 text-center text-sm text-muted-foreground">
+        <p className="glass rounded-xl border-dashed border-glass-border px-4 py-12 text-center text-sm text-muted-foreground">
           Type at least 2 characters to search.
         </p>
       ) : visibleSources.length === 0 ? (
-        <p className="rounded-xl border border-dashed bg-elevated/40 px-4 py-12 text-center text-sm text-muted-foreground">
+        <p className="glass rounded-xl border-dashed border-glass-border px-4 py-12 text-center text-sm text-muted-foreground">
           No sources match the current filters.
         </p>
       ) : (
@@ -277,7 +277,7 @@ function SearchRunner({
 
   if (visible.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed bg-elevated/40 px-4 py-12 text-center text-sm text-muted-foreground">
+      <p className="glass rounded-xl border-dashed border-glass-border px-4 py-12 text-center text-sm text-muted-foreground">
         No results from any source.
       </p>
     );
@@ -302,17 +302,17 @@ function SourceSection({
   query: string;
 }) {
   return (
-    <section className="rounded-2xl border bg-elevated">
+    <section className="glass rounded-2xl">
       <header className="flex items-center gap-3 px-3 py-2.5">
         <AuthImage
           src={resolveUrl(source.iconUrl)}
           alt=""
-          className="size-7 shrink-0 rounded-lg bg-background object-contain ring-1 ring-border"
+          className="size-7 shrink-0 rounded-lg bg-background/60 object-contain ring-1 ring-glass-border"
           onError={(e) => ((e.currentTarget as HTMLImageElement).style.visibility = 'hidden')}
         />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium">{source.displayName || source.name}</p>
-          <p className="truncate text-[11px] uppercase tracking-wider text-muted-foreground">
+          <p className="truncate font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
             {source.lang}
             {source.isNsfw ? ' · NSFW' : ''}
           </p>
@@ -321,13 +321,13 @@ function SourceSection({
           to="/browse/source/$sourceId"
           params={{ sourceId: source.id }}
           search={{ q: query }}
-          className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-muted-foreground transition hover:bg-accent hover:text-foreground"
+          className="group/all inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-muted-foreground transition hover:bg-accent/40 hover:text-primary"
         >
-          View all <ChevronRight className="size-3.5" />
+          View all <ChevronRight className="size-3.5 transition-transform group-hover/all:translate-x-0.5" />
         </Link>
       </header>
 
-      <div className="border-t px-3 py-3">
+      <div className="border-t border-glass-border px-3 py-3">
         <SectionBody state={state} />
       </div>
     </section>
@@ -341,7 +341,7 @@ function SectionBody({ state }: { state: SectionState }) {
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
-            className="aspect-[2/3] w-[120px] shrink-0 animate-pulse rounded-2xl bg-muted"
+            className="aspect-[2/3] w-[120px] shrink-0 animate-pulse rounded-xl bg-muted/60 ring-1 ring-glass-border"
           />
         ))}
       </div>
@@ -382,10 +382,10 @@ function LangChip({
       type="button"
       onClick={onClick}
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition',
+        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-xs font-medium transition',
         active
-          ? 'border-primary bg-primary/10 text-primary'
-          : 'bg-elevated text-muted-foreground hover:text-foreground',
+          ? 'border border-primary/50 bg-primary/10 text-primary shadow-[0_0_14px_-5px_var(--accent-cyan)]'
+          : 'glass text-muted-foreground hover:text-foreground',
       )}
     >
       <Languages className="size-3" />

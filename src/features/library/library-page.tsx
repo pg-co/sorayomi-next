@@ -18,9 +18,11 @@ export function LibraryPage() {
 
   return (
     <div className="px-4 py-6 md:px-8">
-      <header className="mb-4 flex items-end justify-between gap-4">
+      <header className="reveal mb-4 flex items-end justify-between gap-4">
         <div>
-          <h2 className="font-display text-3xl font-semibold tracking-tight">Library</h2>
+          <h2 className="font-display text-3xl font-semibold uppercase tracking-tight">
+            Library
+          </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Your saved manga, organised into categories.
           </p>
@@ -30,7 +32,7 @@ export function LibraryPage() {
             type="button"
             onClick={() => reloadCats({ requestPolicy: 'network-only' })}
             aria-label="Refresh"
-            className="inline-flex items-center gap-2 rounded-xl border bg-elevated p-2 text-sm font-medium text-muted-foreground transition hover:text-foreground sm:px-3 sm:py-2"
+            className="inline-flex items-center gap-2 rounded-xl border border-glass-border bg-elevated/40 p-2 text-sm font-medium text-muted-foreground transition hover:border-primary/40 hover:text-foreground hover:shadow-[0_0_16px_-6px_var(--accent-cyan)] sm:px-3 sm:py-2"
           >
             <RefreshCcw className={cn('size-4', catFetching && 'animate-spin')} />
             <span className="hidden sm:inline">Refresh</span>
@@ -39,7 +41,7 @@ export function LibraryPage() {
           <Link
             to="/browse"
             aria-label="Add manga"
-            className="inline-flex items-center gap-2 rounded-xl bg-primary p-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-95 sm:px-3 sm:py-2"
+            className="glow-cyan inline-flex items-center gap-2 rounded-xl bg-primary p-2 text-sm font-semibold text-primary-foreground transition hover:brightness-110 sm:px-3 sm:py-2"
           >
             <Plus className="size-4" />
             <span className="hidden sm:inline">Add manga</span>
@@ -75,7 +77,7 @@ function CategoryTabs({
   onSelect: (id: number) => void;
 }) {
   return (
-    <div className="sticky top-0 z-10 mb-4 flex gap-1 overflow-x-auto border-b bg-background/80 pb-px backdrop-blur scrollbar-thin">
+    <div className="glass sticky top-0 z-10 mb-4 flex gap-1 overflow-x-auto rounded-xl border-glass-border px-1.5 py-1.5 scrollbar-thin">
       {categories.map((cat) => {
         const active = cat.id === activeId;
         return (
@@ -84,14 +86,16 @@ function CategoryTabs({
             type="button"
             onClick={() => onSelect(cat.id)}
             className={cn(
-              'relative whitespace-nowrap px-3 py-2 text-sm font-medium transition',
-              active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
+              'relative whitespace-nowrap rounded-lg px-3 py-1.5 font-display text-sm font-medium uppercase tracking-wide transition-colors',
+              active
+                ? 'text-primary-foreground'
+                : 'text-muted-foreground hover:text-foreground',
             )}
           >
-            {cat.name}
             {active ? (
-              <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-primary" />
+              <span className="glow-cyan absolute inset-0 rounded-lg bg-primary" />
             ) : null}
+            <span className="relative">{cat.name}</span>
           </button>
         );
       })}
@@ -120,7 +124,7 @@ function CategoryGrid({ categoryId }: { categoryId: number }) {
   const mangas = data?.category.mangas.nodes ?? [];
   if (mangas.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed bg-elevated/40 px-4 py-12 text-center text-sm text-muted-foreground">
+      <p className="glass rounded-xl border-dashed border-glass-border px-4 py-12 text-center text-sm text-muted-foreground">
         No manga in this category yet.
       </p>
     );
@@ -128,8 +132,10 @@ function CategoryGrid({ categoryId }: { categoryId: number }) {
 
   return (
     <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3 md:gap-4 lg:grid-cols-[repeat(auto-fill,minmax(160px,1fr))]">
-      {mangas.map((m) => (
-        <MangaCard key={m.id} manga={m} />
+      {mangas.map((m, i) => (
+        <div key={m.id} className="reveal" style={{ animationDelay: `${Math.min(i * 30, 400)}ms` }}>
+          <MangaCard manga={m} />
+        </div>
       ))}
     </div>
   );
@@ -139,7 +145,7 @@ function GridSkeleton() {
   return (
     <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3 md:gap-4 lg:grid-cols-[repeat(auto-fill,minmax(160px,1fr))]">
       {Array.from({ length: 12 }).map((_, i) => (
-        <div key={i} className="aspect-[2/3] animate-pulse rounded-2xl bg-elevated" />
+        <div key={i} className="aspect-[2/3] animate-pulse rounded-xl bg-elevated/60 ring-1 ring-glass-border" />
       ))}
     </div>
   );
@@ -147,17 +153,19 @@ function GridSkeleton() {
 
 function EmptyState() {
   return (
-    <div className="grid place-items-center rounded-3xl border border-dashed bg-elevated/40 px-6 py-24 text-center">
-      <div className="mb-4 grid size-14 place-items-center rounded-2xl bg-accent text-accent-foreground">
+    <div className="glass reveal grid place-items-center rounded-2xl border-dashed border-glass-border px-6 py-24 text-center">
+      <div className="glow-cyan mb-4 grid size-14 place-items-center rounded-2xl bg-primary/15 text-primary">
         <LibraryBig className="size-7" />
       </div>
-      <h3 className="font-display text-xl font-semibold tracking-tight">Your library is empty</h3>
+      <h3 className="font-display text-xl font-semibold uppercase tracking-tight">
+        Your library is empty
+      </h3>
       <p className="mt-1 max-w-md text-sm text-muted-foreground">
         Once you add manga from a source, they'll show up here.
       </p>
       <Link
         to="/browse"
-        className="mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-3 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-95"
+        className="glow-cyan mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground transition hover:brightness-110"
       >
         Browse sources
       </Link>
@@ -167,12 +175,14 @@ function EmptyState() {
 
 function ConnectionErrorState({ message }: { message: string }) {
   return (
-    <div className="rounded-2xl border border-destructive/40 bg-destructive/10 p-5">
-      <h3 className="font-display text-lg font-semibold text-destructive">Couldn't reach the server</h3>
+    <div className="glass reveal rounded-2xl border-destructive/40 bg-destructive/10 p-5">
+      <h3 className="font-display text-lg font-semibold uppercase text-destructive">
+        Couldn't reach the server
+      </h3>
       <p className="mt-1 text-sm text-destructive/90">{message}</p>
       <Link
         to="/settings"
-        className="mt-3 inline-flex items-center gap-2 rounded-xl border bg-background px-3 py-2 text-sm font-medium transition hover:bg-accent"
+        className="mt-3 inline-flex items-center gap-2 rounded-xl border border-glass-border bg-background/40 px-3 py-2 text-sm font-medium transition hover:bg-accent/40"
       >
         Configure server
       </Link>

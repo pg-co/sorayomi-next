@@ -20,14 +20,17 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <div className="grid h-full grid-cols-1 md:grid-cols-[auto_1fr]">
-      <SideRail className="hidden md:flex" />
-      <div className="flex h-full min-w-0 flex-col">
-        <TopBar onOpenPalette={() => setPaletteOpen(true)} />
-        <main className="min-h-0 flex-1 overflow-y-auto pb-20 md:pb-0">{children}</main>
-        <BottomNav className="md:hidden" />
+    <>
+      <div className="atmosphere" aria-hidden />
+      <div className="relative z-10 grid h-full grid-cols-1 md:grid-cols-[auto_1fr]">
+        <SideRail className="hidden md:flex" />
+        <div className="flex h-full min-w-0 flex-col">
+          <TopBar onOpenPalette={() => setPaletteOpen(true)} />
+          <main className="min-h-0 flex-1 overflow-y-auto pb-20 md:pb-0">{children}</main>
+          <BottomNav className="md:hidden" />
+        </div>
+        <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
       </div>
-      <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
-    </div>
+    </>
   );
 }

@@ -47,15 +47,15 @@ export function SourcesPage({ initialFilter }: { initialFilter?: string } = {}) 
 
   return (
     <div className="px-4 py-6 md:px-8">
-      <header className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <header className="reveal mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="font-display text-3xl font-semibold tracking-tight">Browse</h2>
+          <h2 className="font-display text-3xl font-semibold uppercase tracking-tight">Browse</h2>
           <p className="mt-1 text-sm text-muted-foreground">Discover manga from your installed sources.</p>
         </div>
         <div className="flex items-center gap-2">
           <Link
             to="/browse/extensions"
-            className="inline-flex items-center gap-2 rounded-xl border bg-elevated px-3 py-2 text-sm font-medium text-muted-foreground transition hover:text-foreground"
+            className="glass inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
           >
             <Puzzle className="size-4" />
             Extensions
@@ -71,15 +71,17 @@ export function SourcesPage({ initialFilter }: { initialFilter?: string } = {}) 
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             placeholder="Filter sources…"
-            className="h-10 w-full rounded-xl border bg-elevated pl-9 pr-3 text-sm outline-none transition focus:ring-2 focus:ring-ring"
+            className="glass h-10 w-full rounded-xl pl-9 pr-3 text-sm outline-none transition focus:border-primary/50 focus:shadow-[0_0_18px_-6px_var(--accent-cyan)]"
           />
         </label>
         <button
           type="button"
           onClick={() => setShowNsfw(!showNsfw)}
           className={cn(
-            'inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition',
-            showNsfw ? 'bg-primary/10 text-primary' : 'bg-elevated text-muted-foreground hover:text-foreground',
+            'inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition',
+            showNsfw
+              ? 'border border-accent-magenta/50 bg-accent-magenta/10 text-accent-magenta shadow-[0_0_16px_-6px_var(--accent-magenta)]'
+              : 'glass text-muted-foreground hover:text-foreground',
           )}
         >
           NSFW {showNsfw ? 'on' : 'off'}
@@ -107,7 +109,7 @@ export function SourcesPage({ initialFilter }: { initialFilter?: string } = {}) 
       ) : null}
 
       {error ? (
-        <p className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <p className="glass rounded-xl border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error.message}
         </p>
       ) : null}
@@ -118,26 +120,26 @@ export function SourcesPage({ initialFilter }: { initialFilter?: string } = {}) 
         <EmptyState />
       ) : (
         <div className="space-y-6">
-          {grouped.map(([lang, group]) => (
-            <section key={lang}>
-              <h3 className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                <Languages className="size-3.5" />
+          {grouped.map(([lang, group], gi) => (
+            <section key={lang} className="reveal" style={{ animationDelay: `${gi * 40}ms` }}>
+              <h3 className="mb-2 flex items-center gap-2 font-mono text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <Languages className="size-3.5 text-primary" />
                 {lang}
                 <span className="text-muted-foreground/60">· {group.length}</span>
               </h3>
-              <ul className="divide-y rounded-2xl border bg-elevated">
+              <ul className="glass divide-y divide-glass-border overflow-hidden rounded-2xl">
                 {group.map((s) => (
                   <li key={s.id}>
                     <Link
                       to="/browse/source/$sourceId"
                       params={{ sourceId: String(s.id) }}
                       search={{ q: filter || undefined }}
-                      className="flex items-center gap-3 px-3 py-3 transition hover:bg-accent"
+                      className="group/src flex items-center gap-3 px-3 py-3 transition-colors hover:bg-accent/40"
                     >
                       <AuthImage
                         src={resolveUrl(s.iconUrl)}
                         alt=""
-                        className="size-8 shrink-0 rounded-lg bg-background object-contain ring-1 ring-border"
+                        className="size-8 shrink-0 rounded-lg bg-background/60 object-contain ring-1 ring-glass-border"
                         onError={(e) => ((e.currentTarget as HTMLImageElement).style.visibility = 'hidden')}
                       />
                       <div className="min-w-0 flex-1">
@@ -148,7 +150,7 @@ export function SourcesPage({ initialFilter }: { initialFilter?: string } = {}) 
                             .join(' · ')}
                         </p>
                       </div>
-                      <ChevronRight className="size-4 text-muted-foreground" />
+                      <ChevronRight className="size-4 text-muted-foreground transition-transform group-hover/src:translate-x-0.5 group-hover/src:text-primary" />
                     </Link>
                   </li>
                 ))}
@@ -177,8 +179,10 @@ function LangChip({
       type="button"
       onClick={onClick}
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition',
-        active ? 'border-primary bg-primary/10 text-primary' : 'bg-elevated text-muted-foreground hover:text-foreground',
+        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-xs font-medium transition',
+        active
+          ? 'border border-primary/50 bg-primary/10 text-primary shadow-[0_0_14px_-5px_var(--accent-cyan)]'
+          : 'glass text-muted-foreground hover:text-foreground',
       )}
     >
       {label}
@@ -189,17 +193,17 @@ function LangChip({
 
 function EmptyState() {
   return (
-    <div className="grid place-items-center rounded-2xl border border-dashed bg-elevated/40 px-6 py-20 text-center">
-      <div className="mb-3 grid size-12 place-items-center rounded-2xl bg-accent text-accent-foreground">
+    <div className="glass grid place-items-center rounded-2xl border-dashed border-glass-border px-6 py-20 text-center">
+      <div className="glow-cyan mb-3 grid size-12 place-items-center rounded-2xl bg-primary/15 text-primary">
         <Compass className="size-6" />
       </div>
-      <h3 className="font-display text-lg font-semibold">No sources installed</h3>
+      <h3 className="font-display text-lg font-semibold uppercase">No sources installed</h3>
       <p className="mt-1 max-w-md text-sm text-muted-foreground">
         Install an extension to add a source.
       </p>
       <Link
         to="/browse/extensions"
-        className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-3 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-95"
+        className="glow-cyan mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground transition hover:brightness-110"
       >
         Browse extensions
       </Link>

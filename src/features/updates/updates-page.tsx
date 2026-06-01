@@ -19,9 +19,9 @@ export function UpdatesPage() {
 
   return (
     <div className="px-4 py-6 md:px-8">
-      <header className="mb-4 flex flex-wrap items-end justify-between gap-3">
+      <header className="reveal mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="font-display text-3xl font-semibold tracking-tight">Updates</h2>
+          <h2 className="font-display text-3xl font-semibold uppercase tracking-tight">Updates</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Recent chapters fetched from the sources in your library.
           </p>
@@ -30,7 +30,7 @@ export function UpdatesPage() {
       </header>
 
       {error ? (
-        <p className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <p className="glass rounded-xl border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error.message}
         </p>
       ) : null}
@@ -41,25 +41,25 @@ export function UpdatesPage() {
         <EmptyState />
       ) : (
         <div className="space-y-6">
-          {groups.map((g) => (
-            <section key={g.label}>
-              <h3 className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                <Sparkles className="size-3.5" />
+          {groups.map((g, gi) => (
+            <section key={g.label} className="reveal" style={{ animationDelay: `${gi * 40}ms` }}>
+              <h3 className="mb-2 flex items-center gap-2 font-mono text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <Sparkles className="size-3.5 text-primary" />
                 {g.label}
                 <span className="text-muted-foreground/60">· {g.items.length}</span>
               </h3>
-              <ul className="divide-y rounded-2xl border bg-elevated">
+              <ul className="glass divide-y divide-glass-border overflow-hidden rounded-2xl">
                 {g.items.map((c) => (
                   <li key={c.id}>
                     <Link
                       to="/manga/$mangaId/chapter/$chapterId"
                       params={{ mangaId: String(c.mangaId), chapterId: String(c.id) }}
-                      className={cn('flex items-center gap-3 px-3 py-3 transition hover:bg-accent', c.isRead && 'opacity-60')}
+                      className={cn('flex items-center gap-3 px-3 py-3 transition-colors hover:bg-accent/40', c.isRead && 'opacity-55')}
                     >
                       <AuthImage
                         src={mangaThumbnailUrl(c.mangaId)}
                         alt=""
-                        className="aspect-[2/3] w-10 shrink-0 rounded-md object-cover ring-1 ring-border"
+                        className="aspect-[2/3] w-10 shrink-0 rounded-md object-cover ring-1 ring-glass-border"
                       />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium">{c.manga?.title ?? 'Manga'}</p>
@@ -89,11 +89,11 @@ export function UpdatesPage() {
 
 function EmptyState() {
   return (
-    <div className="grid place-items-center rounded-2xl border border-dashed bg-elevated/40 px-6 py-20 text-center">
-      <div className="mb-3 grid size-12 place-items-center rounded-2xl bg-accent text-accent-foreground">
+    <div className="glass grid place-items-center rounded-2xl border-dashed border-glass-border px-6 py-20 text-center">
+      <div className="glow-cyan mb-3 grid size-12 place-items-center rounded-2xl bg-primary/15 text-primary">
         <Sparkles className="size-6" />
       </div>
-      <h3 className="font-display text-lg font-semibold">No recent updates</h3>
+      <h3 className="font-display text-lg font-semibold uppercase">No recent updates</h3>
       <p className="mt-1 max-w-md text-sm text-muted-foreground">
         Trigger a library update — newly fetched chapters will appear here grouped by date.
       </p>

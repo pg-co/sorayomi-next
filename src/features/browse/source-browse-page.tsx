@@ -44,25 +44,25 @@ export function SourceBrowsePage({ sourceId, initialQuery }: { sourceId: string;
     <div className="px-4 py-6 md:px-8">
       <Link
         to="/browse"
-        className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
+        className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-primary"
       >
         <ArrowLeft className="size-4" /> Sources
       </Link>
 
-      <header className="mb-4 flex items-center gap-3">
+      <header className="reveal mb-4 flex items-center gap-3">
         {source ? (
           <AuthImage
             src={resolveUrl(source.iconUrl)}
             alt=""
-            className="size-10 shrink-0 rounded-xl bg-background object-contain ring-1 ring-border"
+            className="size-10 shrink-0 rounded-xl bg-background/60 object-contain ring-1 ring-glass-border"
             onError={(e) => ((e.currentTarget as HTMLImageElement).style.visibility = 'hidden')}
           />
         ) : null}
         <div className="min-w-0">
-          <h2 className="font-display truncate text-2xl font-semibold tracking-tight">
+          <h2 className="font-display truncate text-2xl font-semibold uppercase tracking-tight">
             {source?.displayName ?? source?.name ?? '…'}
           </h2>
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">
+          <p className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
             {source?.lang ?? ''}
             {source?.isNsfw ? ' · NSFW' : ''}
           </p>
@@ -89,7 +89,7 @@ export function SourceBrowsePage({ sourceId, initialQuery }: { sourceId: string;
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={`Search on ${source?.displayName ?? 'source'}…`}
-              className="h-10 w-full rounded-xl border bg-elevated pl-9 pr-3 text-sm outline-none transition focus:ring-2 focus:ring-ring"
+              className="glass h-10 w-full rounded-xl pl-9 pr-3 text-sm outline-none transition focus:border-primary/50 focus:shadow-[0_0_18px_-6px_var(--accent-cyan)]"
               autoFocus
             />
           </label>
@@ -111,15 +111,17 @@ function Tabs<T extends string>({
   options: ReadonlyArray<{ value: T; label: string }>;
 }) {
   return (
-    <div className="flex gap-1 rounded-xl bg-elevated p-1">
+    <div className="glass flex gap-1 rounded-xl p-1">
       {options.map((o) => (
         <button
           key={o.value}
           type="button"
           onClick={() => onChange(o.value)}
           className={cn(
-            'rounded-lg px-3 py-1.5 text-sm font-medium transition',
-            o.value === value ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground',
+            'rounded-lg px-3 py-1.5 font-display text-sm font-medium uppercase tracking-wide transition',
+            o.value === value
+              ? 'bg-primary text-primary-foreground shadow-[0_0_16px_-5px_var(--accent-cyan)]'
+              : 'text-muted-foreground hover:text-foreground',
           )}
         >
           {o.label}
@@ -198,13 +200,13 @@ function SourceMangaGrid({ sourceId, type, query }: { sourceId: string; type: Ta
   return (
     <>
       {error ? (
-        <p className="mb-3 rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <p className="glass mb-3 rounded-xl border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </p>
       ) : null}
 
       {items.length === 0 && !loading && !error ? (
-        <p className="rounded-xl border border-dashed bg-elevated/40 px-4 py-12 text-center text-sm text-muted-foreground">
+        <p className="glass rounded-xl border-dashed border-glass-border px-4 py-12 text-center text-sm text-muted-foreground">
           No results.
         </p>
       ) : (
@@ -213,7 +215,7 @@ function SourceMangaGrid({ sourceId, type, query }: { sourceId: string; type: Ta
             <div key={m.id} className="relative">
               <MangaCard manga={m} />
               {m.inLibrary ? (
-                <span className="pointer-events-none absolute right-2 top-2 rounded-md bg-primary px-1.5 py-0.5 text-[11px] font-semibold text-primary-foreground shadow">
+                <span className="glow-cyan pointer-events-none absolute right-2 top-2 rounded-md bg-primary px-1.5 py-0.5 text-[11px] font-semibold text-primary-foreground">
                   In library
                 </span>
               ) : null}
