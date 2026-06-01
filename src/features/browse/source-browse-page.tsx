@@ -20,15 +20,17 @@ type Item = {
   downloadCount: number;
 };
 
-export function SourceBrowsePage({ sourceId }: { sourceId: string }) {
+export function SourceBrowsePage({ sourceId, initialQuery }: { sourceId: string; initialQuery?: string }) {
   const [{ data: srcData }] = useQuery({
     query: SOURCE_DETAIL_DOC,
     variables: { id: sourceId },
   });
   const source = srcData?.source;
 
-  const [tab, setTab] = useState<Tab>(FetchSourceMangaType.Popular);
-  const [query, setQuery] = useState('');
+  const [tab, setTab] = useState<Tab>(
+    initialQuery ? FetchSourceMangaType.Search : FetchSourceMangaType.Popular,
+  );
+  const [query, setQuery] = useState(initialQuery ?? '');
   const [debouncedQuery, setDebouncedQuery] = useState('');
 
   useEffect(() => {

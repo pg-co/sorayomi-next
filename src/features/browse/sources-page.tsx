@@ -131,6 +131,7 @@ export function SourcesPage({ initialFilter }: { initialFilter?: string } = {}) 
                     <Link
                       to="/browse/source/$sourceId"
                       params={{ sourceId: String(s.id) }}
+                      search={{ q: filter || undefined }}
                       className="flex items-center gap-3 px-3 py-3 transition hover:bg-accent"
                     >
                       <AuthImage

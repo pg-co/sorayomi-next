@@ -18,7 +18,10 @@
       "Bash(awk '/^type ChapterType/,/^}/' A:/_claude_/sorayomi-next/schema.graphql)",
       "Bash(pnpm lint *)",
       "Bash(echo \"exit=$?\")",
-      "Bash(awk '/^type DownloadType/,/^}/' A:/_claude_/sorayomi-next/schema.graphql)"
+      "Bash(awk '/^type DownloadType/,/^}/' A:/_claude_/sorayomi-next/schema.graphql)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(echo \"PNPM_EXIT:$?\")",
+      "Read(//tmp/**)"
     ]
   }
 }

@@ -139,7 +139,7 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
                   <Command.Item
                     value={`source-search-${debounced}`}
                     onSelect={() => {
-                      navigate({ to: '/browse', search: { q: debounced } });
+                      navigate({ to: '/browse/search', search: { q: debounced } });
                       onOpenChange(false);
                     }}
                     className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground data-[selected=true]:bg-accent"
