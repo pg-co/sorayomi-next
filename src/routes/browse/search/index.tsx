@@ -1,16 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { GlobalSearchPage } from '@/features/browse/global-search-page';
 
-type SearchParams = { q?: string };
+type GlobalSearchSearch = { q?: string };
 
 export const Route = createFileRoute('/browse/search/')({
-  validateSearch: (search: Record<string, unknown>): SearchParams => ({
-    q: typeof search.q === 'string' ? search.q : undefined,
+  validateSearch: (s: Record<string, unknown>): GlobalSearchSearch => ({
+    q: typeof s.q === 'string' ? s.q : undefined,
   }),
   component: GlobalSearchRoute,
 });
 
 function GlobalSearchRoute() {
   const { q } = Route.useSearch();
-  return <GlobalSearchPage query={q ?? ''} />;
+  return <GlobalSearchPage initialQuery={q} />;
 }

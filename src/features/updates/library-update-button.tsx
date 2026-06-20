@@ -44,8 +44,8 @@ export function LibraryUpdateButton() {
         onClick={() => (status.isRunning ? setOpen((v) => !v) : start())}
         aria-label={status.isRunning ? 'Library update in progress' : 'Update library'}
         className={cn(
-          'inline-flex items-center gap-2 rounded-xl border bg-elevated p-2 text-sm font-medium text-muted-foreground transition hover:text-foreground sm:px-3 sm:py-2',
-          status.isRunning && 'border-primary/30 text-primary',
+          'glass inline-flex items-center gap-2 rounded-xl p-2 text-sm font-medium text-muted-foreground transition hover:border-primary/40 hover:text-foreground sm:px-3 sm:py-2',
+          status.isRunning && 'border-primary/50 text-primary shadow-[0_0_16px_-6px_var(--accent-cyan)]',
         )}
       >
         {status.isRunning ? (
@@ -59,8 +59,8 @@ export function LibraryUpdateButton() {
       </button>
 
       {open && status.isRunning ? (
-        <div className="absolute right-0 top-full z-30 mt-2 w-80 rounded-2xl border bg-elevated p-4 shadow-xl">
-          <p className="text-sm font-semibold">Updating library</p>
+        <div className="glass-strong absolute right-0 top-full z-30 mt-2 w-80 rounded-2xl p-4 shadow-2xl shadow-[0_0_40px_-12px_var(--accent-cyan)]">
+          <p className="font-display text-sm font-semibold uppercase tracking-tight">Updating library</p>
           <ProgressBar status={status} />
           <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
             <li>Complete: <span className="text-foreground">{status.complete}</span></li>
@@ -96,13 +96,13 @@ function ProgressBar({ status }: { status: { complete: number; failed: number; s
   const pct = status.total === 0 ? 0 : Math.min(100, Math.round((done / status.total) * 100));
   return (
     <div className="mt-2">
-      <div className="h-2 overflow-hidden rounded-full bg-background">
+      <div className="h-2 overflow-hidden rounded-full bg-background/60">
         <div
-          className="h-full bg-primary transition-all"
+          className="h-full bg-primary shadow-[0_0_10px_var(--accent-cyan)] transition-all"
           style={{ width: `${pct}%` }}
         />
       </div>
-      <p className="mt-1 text-right text-[11px] tabular-nums text-muted-foreground">{pct}%</p>
+      <p className="mt-1 text-right font-mono text-[11px] tabular-nums text-muted-foreground">{pct}%</p>
     </div>
   );
 }

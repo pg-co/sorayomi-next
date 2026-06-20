@@ -1,174 +1,346 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from '@tanstack/react-router';
-import { useQuery, useMutation } from 'urql';
-import { ArrowRight } from 'lucide-react';
-import { SOURCES_DOC, FETCH_SOURCE_MANGA_DOC } from './queries';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate } from '@tanstack/react-router';
+import { useClient, useQuery } from 'urql';
+import { ArrowLeft, ChevronRight, Search } from 'lucide-react';
+import { FETCH_SOURCE_MANGA_DOC, SOURCES_DOC } from './queries';
+import { LangChip } from './lang-chip';
+import { useLanguageFilter } from './use-language-filter';
 import { AuthImage } from '@/components/auth-image';
-import { MangaCard } from '@/features/library/manga-card';
+import { MangaCard, type MangaCardData } from '@/features/library/manga-card';
 import { resolveUrl } from '@/lib/server-config';
 import { useShowNsfw } from '@/lib/client-prefs';
+import { cn } from '@/lib/utils';
 import { FetchSourceMangaType } from '@/lib/graphql/__generated__/graphql';
 
-type Item = {
-  id: number;
-  title: string;
-  thumbnailUrl?: string | null;
-  inLibrary: boolean;
-  unreadCount: number;
-  downloadCount: number;
-};
-
-type Source = {
-  id: string | number;
+type SourceSummary = {
+  id: string;
   name: string;
-  displayName?: string | null;
+  displayName: string;
   lang: string;
   iconUrl: string;
   isNsfw: boolean;
 };
 
-export function GlobalSearchPage({ query }: { query: string }) {
+type SectionState =
+  | { status: 'loading' }
+  | { status: 'loaded'; results: MangaCardData[]; hasNextPage: boolean }
+  | { status: 'error'; message: string };
+
+const CONCURRENCY = 6;
+const PER_SOURCE_LIMIT = 8;
+
+export function GlobalSearchPage({ initialQuery }: { initialQuery?: string }) {
+  const navigate = useNavigate();
   const [{ data }] = useQuery({ query: SOURCES_DOC });
-  const [showNsfw] = useShowNsfw();
 
-  const sources = useMemo(() => {
-    const all = data?.sources.nodes ?? [];
-    return showNsfw ? all : all.filter((s) => !s.isNsfw);
-  }, [data, showNsfw]);
+  const [showNsfw, setShowNsfw] = useShowNsfw();
+  const [hideEmpty, setHideEmpty] = useState(true);
 
-  if (!query.trim()) {
-    return (
-      <div className="px-4 py-6 md:px-8">
-        <p className="text-sm text-muted-foreground">Enter a search query to find manga across all installed sources.</p>
-      </div>
-    );
-  }
+  const [input, setInput] = useState(initialQuery ?? '');
+  const [debounced, setDebounced] = useState(initialQuery ?? '');
+
+  // Keep URL in sync with the debounced query so the page is shareable.
+  useEffect(() => {
+    const t = window.setTimeout(() => setDebounced(input.trim()), 350);
+    return () => window.clearTimeout(t);
+  }, [input]);
+
+  useEffect(() => {
+    navigate({
+      to: '/browse/search',
+      search: debounced ? { q: debounced } : {},
+      replace: true,
+    });
+  }, [debounced, navigate]);
+
+  const allSources: SourceSummary[] = useMemo(
+    () =>
+      (data?.sources.nodes ?? []).map((s) => ({
+        id: String(s.id),
+        name: s.name,
+        displayName: s.displayName,
+        lang: s.lang,
+        iconUrl: s.iconUrl,
+        isNsfw: s.isNsfw,
+      })),
+    [data],
+  );
+
+  const { langs, activeLang, setActiveLang, totalCount, matches } = useLanguageFilter(
+    allSources,
+    showNsfw,
+  );
+
+  const visibleSources = useMemo(() => allSources.filter(matches), [allSources, matches]);
 
   return (
     <div className="px-4 py-6 md:px-8">
-      <header className="mb-6">
-        <h2 className="font-display text-2xl font-semibold tracking-tight">
-          "{query}"
-        </h2>
+      <Link
+        to="/browse"
+        className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-primary"
+      >
+        <ArrowLeft className="size-4" /> Sources
+      </Link>
+
+      <header className="reveal mb-4">
+        <h2 className="font-display text-3xl font-semibold uppercase tracking-tight">Global search</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Searching across {sources.length} source{sources.length !== 1 ? 's' : ''}
+          Search every installed source at once. Use the language chips to narrow down.
         </p>
       </header>
 
-      {sources.length === 0 && data ? (
-        <p className="rounded-xl border border-dashed bg-elevated/40 px-4 py-12 text-center text-sm text-muted-foreground">
-          No sources installed. Install an extension to search.
-        </p>
-      ) : (
-        <div className="space-y-8">
-          {sources.map((s) => (
-            <SourceSearchSection key={s.id} source={s as Source} query={query} />
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <label className="relative flex flex-1 min-w-56 items-center">
+          <Search className="absolute left-3 size-4 text-muted-foreground" />
+          <input
+            type="search"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Search across all sources…"
+            className="glass h-10 w-full rounded-xl pl-9 pr-3 text-sm outline-none transition focus:border-primary/50 focus:shadow-[0_0_18px_-6px_var(--accent-cyan)]"
+            autoFocus
+          />
+        </label>
+        <button
+          type="button"
+          onClick={() => setHideEmpty((v) => !v)}
+          className={cn(
+            'inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition',
+            hideEmpty
+              ? 'border border-primary/50 bg-primary/10 text-primary shadow-[0_0_16px_-6px_var(--accent-cyan)]'
+              : 'glass text-muted-foreground hover:text-foreground',
+          )}
+        >
+          Hide empty {hideEmpty ? 'on' : 'off'}
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowNsfw(!showNsfw)}
+          className={cn(
+            'inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition',
+            showNsfw
+              ? 'border border-accent-magenta/50 bg-accent-magenta/10 text-accent-magenta shadow-[0_0_16px_-6px_var(--accent-magenta)]'
+              : 'glass text-muted-foreground hover:text-foreground',
+          )}
+        >
+          NSFW {showNsfw ? 'on' : 'off'}
+        </button>
+      </div>
+
+      {langs.length > 0 ? (
+        <div className="mb-4 flex flex-wrap gap-1.5">
+          <LangChip
+            active={activeLang === null}
+            onClick={() => setActiveLang(null)}
+            label="All"
+            count={totalCount}
+          />
+          {langs.map(([lang, n]) => (
+            <LangChip
+              key={lang}
+              active={activeLang === lang}
+              onClick={() => setActiveLang(lang)}
+              label={lang.toUpperCase()}
+              count={n}
+            />
           ))}
         </div>
+      ) : null}
+
+      {debounced.length < 2 ? (
+        <p className="glass rounded-xl border-dashed border-glass-border px-4 py-12 text-center text-sm text-muted-foreground">
+          Type at least 2 characters to search.
+        </p>
+      ) : visibleSources.length === 0 ? (
+        <p className="glass rounded-xl border-dashed border-glass-border px-4 py-12 text-center text-sm text-muted-foreground">
+          No sources match the current filters.
+        </p>
+      ) : (
+        <SearchRunner query={debounced} sources={visibleSources} hideEmpty={hideEmpty} />
       )}
     </div>
   );
 }
 
-function SourceSearchSection({ source, query }: { source: Source; query: string }) {
-  const [, fetchPage] = useMutation(FETCH_SOURCE_MANGA_DOC);
-  const [items, setItems] = useState<Item[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isVisible, setIsVisible] = useState(false);
-  const [done, setDone] = useState(false);
-  const sectionRef = useRef<HTMLElement>(null);
-  const fetchedQueryRef = useRef('');
+function SearchRunner({
+  query,
+  sources,
+  hideEmpty,
+}: {
+  query: string;
+  sources: SourceSummary[];
+  hideEmpty: boolean;
+}) {
+  const client = useClient();
+  const [states, setStates] = useState<Record<string, SectionState>>({});
 
-  // Reveal once the section enters the viewport (pre-load 300px early).
+  // Re-run whenever the query or the visible source set changes.
   useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry?.isIntersecting) setIsVisible(true); },
-      { rootMargin: '300px' },
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
+    setStates(() => {
+      const init: Record<string, SectionState> = {};
+      for (const s of sources) init[s.id] = { status: 'loading' };
+      return init;
+    });
 
-  // Reset when query changes.
-  useEffect(() => {
-    fetchedQueryRef.current = '';
-    setItems([]);
-    setError(null);
-    setDone(false);
-  }, [query]);
-
-  // Fire the search once this section is visible and query hasn't been fetched yet.
-  useEffect(() => {
-    if (!isVisible || !query.trim() || fetchedQueryRef.current === query) return;
-    fetchedQueryRef.current = query;
     let cancelled = false;
-    setLoading(true);
-    setError(null);
+    const queue = sources.slice();
+    let active = 0;
 
-    fetchPage({ source: String(source.id), type: FetchSourceMangaType.Search, page: 1, query })
-      .then((res) => {
-        if (cancelled) return;
-        if (res.error) {
-          setError(res.error.message);
-        } else {
-          setItems((res.data?.fetchSourceManga?.mangas ?? []) as Item[]);
-        }
-        setDone(true);
+    const pump = () => {
+      if (cancelled) return;
+      while (active < CONCURRENCY && queue.length > 0) {
+        const src = queue.shift()!;
+        active++;
+
+        client
+          .mutation(FETCH_SOURCE_MANGA_DOC, {
+            source: src.id,
+            type: FetchSourceMangaType.Search,
+            page: 1,
+            query,
+          })
+          .toPromise()
+          .then((res) => {
+            if (cancelled) return;
+            if (res.error) {
+              setStates((prev) => ({
+                ...prev,
+                [src.id]: { status: 'error', message: res.error!.message },
+              }));
+              return;
+            }
+            const payload = res.data?.fetchSourceManga;
+            const results = (payload?.mangas ?? []).slice(0, PER_SOURCE_LIMIT);
+            setStates((prev) => ({
+              ...prev,
+              [src.id]: {
+                status: 'loaded',
+                results,
+                hasNextPage: payload?.hasNextPage ?? false,
+              },
+            }));
+          })
+          .catch((e: unknown) => {
+            if (cancelled) return;
+            setStates((prev) => ({
+              ...prev,
+              [src.id]: {
+                status: 'error',
+                message: e instanceof Error ? e.message : 'Request failed',
+              },
+            }));
+          })
+          .finally(() => {
+            active--;
+            pump();
+          });
+      }
+    };
+
+    pump();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [query, sources, client]);
+
+  const visible = hideEmpty
+    ? sources.filter((s) => {
+        const st = states[s.id];
+        if (!st) return true;
+        if (st.status === 'loaded' && st.results.length === 0) return false;
+        if (st.status === 'error') return false;
+        return true;
       })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+    : sources;
 
-    return () => { cancelled = true; };
-  }, [isVisible, query, fetchPage, source.id]);
-
-  // Hide sections that returned no results (once fully loaded).
-  if (done && items.length === 0 && !error) return null;
+  if (visible.length === 0) {
+    return (
+      <p className="glass rounded-xl border-dashed border-glass-border px-4 py-12 text-center text-sm text-muted-foreground">
+        No results from any source.
+      </p>
+    );
+  }
 
   return (
-    <section ref={sectionRef}>
-      <div className="mb-3 flex items-center gap-2">
+    <div className="space-y-6">
+      {visible.map((s) => (
+        <SourceSection key={s.id} source={s} state={states[s.id] ?? { status: 'loading' }} query={query} />
+      ))}
+    </div>
+  );
+}
+
+function SourceSection({
+  source,
+  state,
+  query,
+}: {
+  source: SourceSummary;
+  state: SectionState;
+  query: string;
+}) {
+  return (
+    <section className="glass rounded-2xl">
+      <header className="flex items-center gap-3 px-3 py-2.5">
         <AuthImage
           src={resolveUrl(source.iconUrl)}
           alt=""
-          className="size-6 shrink-0 rounded-md object-contain"
+          className="size-7 shrink-0 rounded-lg bg-background/60 object-contain ring-1 ring-glass-border"
           onError={(e) => ((e.currentTarget as HTMLImageElement).style.visibility = 'hidden')}
         />
-        <h3 className="font-medium">{source.displayName || source.name}</h3>
-        <span className="text-xs text-muted-foreground">{source.lang}</span>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium">{source.displayName || source.name}</p>
+          <p className="truncate font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+            {source.lang}
+            {source.isNsfw ? ' · NSFW' : ''}
+          </p>
+        </div>
         <Link
           to="/browse/source/$sourceId"
-          params={{ sourceId: String(source.id) }}
-          search={{ tab: FetchSourceMangaType.Search, q: query }}
-          className="ml-auto inline-flex items-center gap-1 text-xs text-primary hover:underline"
+          params={{ sourceId: source.id }}
+          search={{ q: query }}
+          className="group/all inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-muted-foreground transition hover:bg-accent/40 hover:text-primary"
         >
-          See all <ArrowRight className="size-3" />
+          View all <ChevronRight className="size-3.5 transition-transform group-hover/all:translate-x-0.5" />
         </Link>
-      </div>
+      </header>
 
-      {error ? (
-        <p className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-          {error}
-        </p>
-      ) : loading ? (
-        <p className="text-xs text-muted-foreground">Searching…</p>
-      ) : (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-3 md:grid-cols-[repeat(auto-fill,minmax(140px,1fr))]">
-          {items.slice(0, 6).map((m) => (
-            <div key={m.id} className="relative">
-              <MangaCard manga={m} />
-              {m.inLibrary ? (
-                <span className="pointer-events-none absolute right-1.5 top-1.5 rounded-md bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground shadow">
-                  In library
-                </span>
-              ) : null}
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="border-t border-glass-border px-3 py-3">
+        <SectionBody state={state} />
+      </div>
     </section>
+  );
+}
+
+function SectionBody({ state }: { state: SectionState }) {
+  if (state.status === 'loading') {
+    return (
+      <div className="flex gap-3 overflow-hidden">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div
+            key={i}
+            className="aspect-[2/3] w-[120px] shrink-0 animate-pulse rounded-xl bg-muted/60 ring-1 ring-glass-border"
+          />
+        ))}
+      </div>
+    );
+  }
+  if (state.status === 'error') {
+    return (
+      <p className="text-xs text-destructive">{state.message}</p>
+    );
+  }
+  if (state.results.length === 0) {
+    return <p className="text-xs text-muted-foreground">No results.</p>;
+  }
+  return (
+    <div className="flex gap-3 overflow-x-auto scrollbar-thin">
+      {state.results.map((m) => (
+        <div key={m.id} className="w-[120px] shrink-0">
+          <MangaCard manga={m} />
+        </div>
+      ))}
+    </div>
   );
 }

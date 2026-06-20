@@ -28,15 +28,15 @@ export function HistoryPage() {
 
   return (
     <div className="px-4 py-6 md:px-8">
-      <header className="mb-4">
-        <h2 className="font-display text-3xl font-semibold tracking-tight">History</h2>
+      <header className="reveal mb-4">
+        <h2 className="font-display text-3xl font-semibold uppercase tracking-tight">History</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Everything you've read, in reverse-chronological order.
         </p>
       </header>
 
       {error ? (
-        <p className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <p className="glass rounded-xl border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error.message}
         </p>
       ) : null}
@@ -44,11 +44,11 @@ export function HistoryPage() {
       {!error && fetching && !data ? <Skeleton /> : null}
 
       {!error && data && groups.length === 0 ? (
-        <div className="grid place-items-center rounded-3xl border border-dashed bg-elevated/40 px-6 py-24 text-center">
-          <div className="mb-4 grid size-14 place-items-center rounded-2xl bg-accent text-accent-foreground">
+        <div className="glass grid place-items-center rounded-2xl border-dashed border-glass-border px-6 py-24 text-center">
+          <div className="glow-cyan mb-4 grid size-14 place-items-center rounded-2xl bg-primary/15 text-primary">
             <HistoryIcon className="size-7" />
           </div>
-          <h3 className="font-display text-xl font-semibold tracking-tight">Nothing here yet</h3>
+          <h3 className="font-display text-xl font-semibold uppercase tracking-tight">Nothing here yet</h3>
           <p className="mt-1 max-w-md text-sm text-muted-foreground">
             Chapters you've opened will show up here once you've read part of them.
           </p>
@@ -56,23 +56,23 @@ export function HistoryPage() {
       ) : null}
 
       <div className="space-y-6">
-        {groups.map(([day, rows]) => (
-          <section key={day}>
-            <h3 className="mb-2 text-sm font-medium uppercase tracking-wider text-muted-foreground">
+        {groups.map(([day, rows], gi) => (
+          <section key={day} className="reveal" style={{ animationDelay: `${gi * 40}ms` }}>
+            <h3 className="mb-2 font-mono text-sm font-medium uppercase tracking-wider text-muted-foreground">
               {prettyDay(day)}
             </h3>
-            <ul className="divide-y rounded-2xl border bg-elevated">
+            <ul className="glass divide-y divide-glass-border overflow-hidden rounded-2xl">
               {rows.map((c) => (
                 <li key={c.id}>
                   <Link
                     to="/manga/$mangaId/chapter/$chapterId"
                     params={{ mangaId: String(c.mangaId), chapterId: String(c.id) }}
-                    className="flex items-center gap-3 px-3 py-3 transition hover:bg-accent"
+                    className="flex items-center gap-3 px-3 py-3 transition-colors hover:bg-accent/40"
                   >
                     <AuthImage
                       src={mangaThumbnailUrl(c.mangaId)}
                       alt=""
-                      className="aspect-[2/3] h-14 w-10 shrink-0 rounded object-cover ring-1 ring-border"
+                      className="aspect-[2/3] h-14 w-10 shrink-0 rounded object-cover ring-1 ring-glass-border"
                     />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium">{c.manga.title}</p>
@@ -83,7 +83,7 @@ export function HistoryPage() {
                           : ''}
                       </p>
                     </div>
-                    <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
+                    <span className="shrink-0 font-mono text-xs text-muted-foreground tabular-nums">
                       {prettyTime(Number(c.lastReadAt))}
                     </span>
                   </Link>
@@ -101,7 +101,7 @@ function Skeleton() {
   return (
     <div className="space-y-3">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="h-16 animate-pulse rounded-xl bg-elevated" />
+        <div key={i} className="h-16 animate-pulse rounded-xl bg-elevated/60 ring-1 ring-glass-border" />
       ))}
     </div>
   );

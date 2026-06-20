@@ -7,16 +7,21 @@ export function TopBar({ onOpenPalette }: { onOpenPalette: () => void }) {
   const title = pageTitleFor(matches.at(-1)?.routeId);
 
   return (
-    <header className="sticky top-0 z-10 flex h-14 items-center gap-3 border-b bg-background/80 px-4 backdrop-blur">
-      <h1 className="font-display text-lg font-semibold tracking-tight">{title}</h1>
+    <header className="glass sticky top-0 z-10 flex h-14 items-center gap-3 border-x-0 border-t-0 px-4">
+      <h1 className="flex items-center gap-2.5 font-display text-lg font-semibold uppercase tracking-tight">
+        <span className="h-4 w-0.5 rounded-full bg-primary shadow-[0_0_10px_var(--accent-cyan)]" />
+        {title}
+      </h1>
       <button
         type="button"
         onClick={onOpenPalette}
-        className="ml-auto inline-flex h-9 min-w-56 items-center gap-2 rounded-xl border bg-elevated px-3 text-sm text-muted-foreground transition hover:bg-accent hover:text-foreground"
+        className="ml-auto inline-flex h-9 min-w-56 items-center gap-2 rounded-xl border border-glass-border bg-elevated/40 px-3 text-sm text-muted-foreground transition hover:border-primary/40 hover:text-foreground hover:shadow-[0_0_16px_-6px_var(--accent-cyan)]"
       >
         <Search className="size-4" />
         <span>Search…</span>
-        <kbd className="ml-auto text-[10px] uppercase tracking-wider opacity-70">⌘K</kbd>
+        <kbd className="ml-auto rounded border border-glass-border bg-background/40 px-1.5 py-0.5 font-mono text-[10px] tracking-wider opacity-70">
+          ⌘K
+        </kbd>
       </button>
       <ThemeToggle />
     </header>

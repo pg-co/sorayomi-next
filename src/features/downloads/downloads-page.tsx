@@ -36,12 +36,13 @@ export function DownloadsPage() {
 
   return (
     <div className="px-4 py-6 md:px-8">
-      <header className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <header className="reveal mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="font-display text-3xl font-semibold tracking-tight">Downloads</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {status.queue.length} in queue ·{' '}
-            <span className={cn('font-medium', running ? 'text-primary' : 'text-muted-foreground')}>
+          <h2 className="font-display text-3xl font-semibold uppercase tracking-tight">Downloads</h2>
+          <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+            <span className="font-mono tabular-nums">{status.queue.length}</span> in queue ·{' '}
+            <span className={cn('inline-flex items-center gap-1.5 font-medium', running ? 'text-primary' : 'text-muted-foreground')}>
+              <span className={cn('size-1.5 rounded-full', running ? 'bg-primary shadow-[0_0_8px_var(--accent-cyan)]' : 'bg-muted-foreground')} />
               {running ? 'Running' : 'Stopped'}
             </span>
           </p>
@@ -50,7 +51,7 @@ export function DownloadsPage() {
           <button
             type="button"
             onClick={toggleRun}
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-3 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-95"
+            className="glow-cyan inline-flex items-center gap-2 rounded-xl bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground transition hover:brightness-110"
           >
             {running ? <Pause className="size-4" /> : <Play className="size-4" />}
             {running ? 'Pause' : 'Resume'}
@@ -59,7 +60,7 @@ export function DownloadsPage() {
             type="button"
             onClick={onClear}
             disabled={status.queue.length === 0}
-            className="inline-flex items-center gap-2 rounded-xl border bg-elevated px-3 py-2 text-sm font-medium text-muted-foreground transition hover:text-foreground disabled:opacity-40"
+            className="glass inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground transition hover:border-primary/40 hover:text-foreground disabled:opacity-40"
           >
             <Trash2 className="size-4" /> Clear
           </button>
@@ -69,7 +70,7 @@ export function DownloadsPage() {
       {status.queue.length === 0 ? (
         <EmptyQueue />
       ) : (
-        <ul className="divide-y rounded-2xl border bg-elevated">
+        <ul className="glass divide-y divide-glass-border overflow-hidden rounded-2xl">
           {status.queue.map((d) => (
             <li key={d.chapterId} className="flex items-center gap-3 px-4 py-3">
               <Link
@@ -80,23 +81,24 @@ export function DownloadsPage() {
                 <AuthImage
                   src={mangaThumbnailUrl(d.mangaId)}
                   alt=""
-                  className="aspect-[2/3] w-10 rounded-md object-cover ring-1 ring-border"
+                  className="aspect-[2/3] w-10 rounded-md object-cover ring-1 ring-glass-border"
                 />
               </Link>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{d.mangaTitle}</p>
                 <p className="truncate text-xs text-muted-foreground">{d.chapterName || `Chapter ${d.chapterNumber}`}</p>
-                <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-background">
+                <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-background/60">
                   <div
                     className="h-full transition-all"
                     style={{
                       width: `${Math.round(d.progress * 100)}%`,
                       backgroundColor: 'var(--downloaded)',
+                      boxShadow: '0 0 10px var(--downloaded)',
                     }}
                   />
                 </div>
               </div>
-              <span className="w-12 text-right text-xs tabular-nums text-muted-foreground">
+              <span className="w-12 text-right font-mono text-xs tabular-nums text-muted-foreground">
                 {Math.round(d.progress * 100)}%
               </span>
               <button
@@ -120,11 +122,11 @@ export function DownloadsPage() {
 
 function EmptyQueue() {
   return (
-    <div className="grid place-items-center rounded-2xl border border-dashed bg-elevated/40 px-6 py-20 text-center">
-      <div className="mb-3 grid size-12 place-items-center rounded-2xl bg-accent text-accent-foreground">
+    <div className="glass grid place-items-center rounded-2xl border-dashed border-glass-border px-6 py-20 text-center">
+      <div className="mb-3 grid size-12 place-items-center rounded-2xl bg-primary/15 text-primary shadow-[0_0_24px_-6px_var(--downloaded)]">
         <CloudDownload className="size-6" />
       </div>
-      <h3 className="font-display text-lg font-semibold">Queue is empty</h3>
+      <h3 className="font-display text-lg font-semibold uppercase">Queue is empty</h3>
       <p className="mt-1 max-w-md text-sm text-muted-foreground">
         Trigger a download from a manga's chapter list and it will show up here in real time.
       </p>

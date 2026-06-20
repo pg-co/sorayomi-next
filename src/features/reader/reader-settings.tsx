@@ -14,7 +14,7 @@ export function ReaderSettingsPanel({
   return (
     <>
       <div className="fixed inset-0 z-40" onClick={onClose} />
-      <div className="absolute right-3 top-14 z-50 w-72 rounded-2xl border border-white/10 bg-zinc-900/95 p-3 text-white shadow-2xl backdrop-blur">
+      <div className="absolute right-3 top-14 z-50 w-72 rounded-2xl border border-glass-border bg-background/85 p-3 text-foreground shadow-2xl shadow-[0_0_40px_-12px_var(--accent-cyan)] backdrop-blur-xl">
         <Section label="Reading mode">
           <Segment
             value={settings.mode}
@@ -88,7 +88,7 @@ export function ReaderSettingsPanel({
 function Section({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="mb-3">
-      <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wider text-white/60">{label}</p>
+      <p className="mb-1.5 font-mono text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
       {children}
     </div>
   );
@@ -104,7 +104,7 @@ function Segment<T extends string>({
   options: ReadonlyArray<{ value: T; label: string; icon?: React.ReactNode }>;
 }) {
   return (
-    <div className="grid auto-cols-fr grid-flow-col gap-1 rounded-lg bg-white/5 p-1">
+    <div className="grid auto-cols-fr grid-flow-col gap-1 rounded-lg bg-secondary/60 p-1">
       {options.map((opt) => {
         const active = opt.value === value;
         return (
@@ -114,7 +114,9 @@ function Segment<T extends string>({
             onClick={() => onChange(opt.value)}
             className={cn(
               'inline-flex items-center justify-center gap-1 rounded-md px-2 py-1 text-xs transition',
-              active ? 'bg-white/15 font-medium text-white' : 'text-white/70 hover:bg-white/10',
+              active
+                ? 'bg-primary font-medium text-primary-foreground shadow-[0_0_14px_-4px_var(--accent-cyan)]'
+                : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground',
             )}
           >
             {opt.icon}
@@ -139,13 +141,15 @@ function Toggle({
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-sm transition hover:bg-white/5"
+      className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-sm transition hover:bg-accent/40"
     >
-      <span className="text-white/85">{label}</span>
+      <span className="text-foreground/90">{label}</span>
       <span
         className={cn(
           'grid size-5 place-items-center rounded-md border transition',
-          checked ? 'border-white/0 bg-[var(--primary)] text-primary-foreground' : 'border-white/30',
+          checked
+            ? 'border-transparent bg-primary text-primary-foreground shadow-[0_0_12px_-2px_var(--accent-cyan)]'
+            : 'border-border',
         )}
       >
         {checked ? <Check className="size-3.5" /> : null}

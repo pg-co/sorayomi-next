@@ -9,8 +9,8 @@ import { cn } from '@/lib/utils';
 
 export function SettingsPage() {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-6 md:px-8">
-      <h2 className="font-display text-3xl font-semibold tracking-tight">Settings</h2>
+    <div className="reveal mx-auto max-w-2xl px-4 py-6 md:px-8">
+      <h2 className="font-display text-3xl font-semibold uppercase tracking-tight">Settings</h2>
       <p className="mt-1 text-sm text-muted-foreground">Configure your Suwayomi server and app preferences.</p>
 
       <ServerSection />
@@ -36,8 +36,8 @@ function ServerSection() {
   }
 
   return (
-    <section className="mt-8 rounded-2xl border bg-elevated p-5">
-      <h3 className="font-display text-lg font-semibold">Server</h3>
+    <section className="mt-8 glass rounded-2xl p-5">
+      <h3 className="font-display text-lg font-semibold uppercase">Server</h3>
       <p className="mt-1 text-sm text-muted-foreground">
         Leave URL empty to use same-origin (e.g. when sorayomi is served by Suwayomi itself, or via the Vite dev proxy).
       </p>
@@ -52,7 +52,7 @@ function ServerSection() {
         <button
           type="button"
           onClick={save}
-          className="inline-flex items-center rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-95"
+          className="inline-flex items-center glow-cyan rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:brightness-110"
         >
           Save
         </button>
@@ -64,8 +64,8 @@ function ServerSection() {
 function ContentSection() {
   const [showNsfw, setShowNsfw] = useShowNsfw();
   return (
-    <section className="mt-6 rounded-2xl border bg-elevated p-5">
-      <h3 className="font-display text-lg font-semibold">Content</h3>
+    <section className="mt-6 glass rounded-2xl p-5">
+      <h3 className="font-display text-lg font-semibold uppercase">Content</h3>
       <div className="mt-4 flex items-center justify-between gap-4">
         <div>
           <p className="text-sm font-medium">Show NSFW sources</p>
@@ -150,10 +150,10 @@ function FlareSolverrSection() {
       timeout !== String(data.settings.flareSolverrTimeout));
 
   return (
-    <section className="mt-6 rounded-2xl border bg-elevated p-5">
+    <section className="mt-6 glass rounded-2xl p-5">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h3 className="font-display text-lg font-semibold">FlareSolverr</h3>
+          <h3 className="font-display text-lg font-semibold uppercase">FlareSolverr</h3>
           <p className="mt-1 text-sm text-muted-foreground">
             Configure the external FlareSolverr service used by some protected sources, following the VUI server settings surface.
           </p>
@@ -204,7 +204,7 @@ function FlareSolverrSection() {
           type="button"
           onClick={save}
           disabled={!dirty || saving || fetching}
-          className="inline-flex items-center rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-95 disabled:opacity-50"
+          className="inline-flex items-center glow-cyan rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:brightness-110 disabled:opacity-50"
         >
           {saving ? 'Saving…' : 'Save'}
         </button>
@@ -268,11 +268,11 @@ function ExtensionsSection() {
       repos.some((r, i) => r !== data.settings.extensionRepos[i]));
 
   return (
-    <section className="mt-6 rounded-2xl border bg-elevated p-5">
-      <h3 className="font-display text-lg font-semibold">Extension repos</h3>
+    <section className="mt-6 glass rounded-2xl p-5">
+      <h3 className="font-display text-lg font-semibold uppercase">Extension repos</h3>
       <p className="mt-1 text-sm text-muted-foreground">
         Third-party repositories Suwayomi pulls extensions from. Each entry is the URL of an{' '}
-        <code className="rounded bg-background px-1 py-0.5 text-xs">index.min.json</code>.
+        <code className="rounded bg-background/60 px-1 py-0.5 font-mono text-xs text-primary">index.min.json</code>.
       </p>
 
       {error ? (
@@ -283,23 +283,23 @@ function ExtensionsSection() {
 
       <ul className="mt-4 space-y-2">
         {fetching && !data ? (
-          <li className="h-10 animate-pulse rounded-xl bg-background" />
+          <li className="h-10 animate-pulse rounded-xl bg-background/50" />
         ) : repos.length === 0 ? (
-          <li className="rounded-xl border border-dashed px-3 py-3 text-sm text-muted-foreground">
+          <li className="rounded-xl border border-dashed border-glass-border px-3 py-3 text-sm text-muted-foreground">
             No repos configured.
           </li>
         ) : (
           repos.map((r) => (
             <li
               key={r}
-              className="flex items-center gap-2 rounded-xl border bg-background px-3 py-2 text-sm"
+              className="flex items-center gap-2 rounded-xl border border-glass-border bg-background/40 px-3 py-2 text-sm"
             >
               <span className="flex-1 truncate font-mono text-xs">{r}</span>
               <button
                 type="button"
                 onClick={() => removeRepo(r)}
                 aria-label="Remove repo"
-                className="rounded-lg p-1 text-muted-foreground transition hover:bg-accent hover:text-destructive"
+                className="rounded-lg p-1 text-muted-foreground transition hover:bg-accent/40 hover:text-destructive"
               >
                 <Trash2 className="size-4" />
               </button>
@@ -310,7 +310,7 @@ function ExtensionsSection() {
 
       <div className="mt-3 flex gap-2">
         <input
-          className="flex-1 rounded-xl border bg-background px-3 py-2 text-sm outline-none transition focus:ring-2 focus:ring-ring"
+          className="flex-1 rounded-xl border border-glass-border bg-background/40 px-3 py-2 text-sm outline-none transition focus:border-primary/50 focus:shadow-[0_0_16px_-6px_var(--accent-cyan)]"
           placeholder="https://example.com/index.min.json"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
@@ -324,7 +324,7 @@ function ExtensionsSection() {
         <button
           type="button"
           onClick={addRepo}
-          className="inline-flex items-center gap-1.5 rounded-xl border bg-elevated px-3 py-2 text-sm font-medium text-muted-foreground transition hover:text-foreground"
+          className="glass inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
         >
           <Plus className="size-4" />
           Add
@@ -336,7 +336,7 @@ function ExtensionsSection() {
           type="button"
           onClick={save}
           disabled={!dirty || saving}
-          className="inline-flex items-center rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-95 disabled:opacity-50"
+          className="inline-flex items-center glow-cyan rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:brightness-110 disabled:opacity-50"
         >
           {saving ? 'Saving…' : 'Save'}
         </button>
@@ -362,7 +362,7 @@ function Field({
     <label className="block">
       <span className="mb-1 block text-xs font-medium text-muted-foreground">{label}</span>
       <input
-        className="block w-full rounded-xl border bg-background px-3 py-2 text-sm outline-none transition focus:ring-2 focus:ring-ring"
+        className="block w-full rounded-xl border border-glass-border bg-background/40 px-3 py-2 text-sm outline-none transition focus:border-primary/50 focus:shadow-[0_0_16px_-6px_var(--accent-cyan)]"
         type={type}
         value={value}
         placeholder={placeholder}
@@ -390,7 +390,7 @@ function Toggle({
       onClick={() => onChange(!checked)}
       className={cn(
         'relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition',
-        checked ? 'bg-primary' : 'bg-background',
+        checked ? 'bg-primary shadow-[0_0_14px_-3px_var(--accent-cyan)]' : 'bg-input',
       )}
     >
       <span

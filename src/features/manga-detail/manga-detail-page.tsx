@@ -23,7 +23,7 @@ export function MangaDetailPage({ mangaId }: { mangaId: number }) {
   if (error) {
     return (
       <div className="px-4 py-6 md:px-8">
-        <p className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <p className="glass rounded-xl border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error.message}
         </p>
       </div>
@@ -53,12 +53,13 @@ function Hero({ manga, onLibraryChange }: { manga: DetailManga; onLibraryChange:
           aria-hidden
         />
         <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/70 to-background" />
+        <div className="absolute inset-0 bg-[radial-gradient(60rem_30rem_at_15%_0%,color-mix(in_oklch,var(--accent-cyan)_18%,transparent),transparent_60%),radial-gradient(50rem_30rem_at_100%_0%,color-mix(in_oklch,var(--accent-magenta)_16%,transparent),transparent_55%)]" />
       </div>
 
-      <div className="px-4 py-6 md:px-8 md:py-10">
+      <div className="reveal px-4 py-6 md:px-8 md:py-10">
         <Link
           to="/library"
-          className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-primary"
         >
           <ArrowLeft className="size-4" /> Library
         </Link>
@@ -67,11 +68,11 @@ function Hero({ manga, onLibraryChange }: { manga: DetailManga; onLibraryChange:
           <AuthImage
             src={mangaThumbnailUrl(manga.id)}
             alt=""
-            className="aspect-[2/3] w-32 rounded-2xl object-cover shadow-lg ring-1 ring-border md:w-full"
+            className="aspect-[2/3] w-32 rounded-2xl object-cover shadow-[0_8px_40px_-12px_var(--accent-cyan)] ring-1 ring-glass-border md:w-full"
           />
 
           <div className="flex w-full min-w-0 flex-col">
-            <h1 className="text-center font-display text-2xl font-semibold tracking-tight md:text-left md:text-4xl">{manga.title}</h1>
+            <h1 className="text-center font-display text-2xl font-semibold uppercase tracking-tight md:text-left md:text-4xl">{manga.title}</h1>
             {manga.author ? (
               <p className="mt-1 text-center text-sm text-muted-foreground md:text-left">
                 {manga.author}
@@ -103,7 +104,7 @@ function Hero({ manga, onLibraryChange }: { manga: DetailManga; onLibraryChange:
                 {manga.genre.map((g) => (
                   <li
                     key={g}
-                    className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground"
+                    className="rounded-full border border-glass-border bg-secondary/60 px-2.5 py-0.5 text-xs font-medium text-secondary-foreground transition-colors hover:border-primary/40 hover:text-primary"
                   >
                     {g}
                   </li>
@@ -133,15 +134,15 @@ function Stat({
   accent?: 'unread' | 'downloaded';
 }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-xl border bg-elevated px-2.5 py-1 text-xs">
+    <span className="glass inline-flex items-center gap-1.5 rounded-xl px-2.5 py-1 text-xs">
       {accent ? (
         <span
           className="size-1.5 rounded-full"
-          style={{ backgroundColor: `var(--${accent})` }}
+          style={{ backgroundColor: `var(--${accent})`, boxShadow: `0 0 8px var(--${accent})` }}
           aria-hidden
         />
       ) : null}
-      <span className="font-semibold tabular-nums">{value}</span>
+      <span className="font-mono font-semibold tabular-nums">{value}</span>
       <span className="text-muted-foreground">{label}</span>
     </span>
   );
@@ -179,8 +180,8 @@ function LibraryToggle({
       className={cn(
         'inline-flex items-center gap-2 rounded-xl px-3 py-1.5 text-sm font-medium transition',
         inLibrary
-          ? 'bg-secondary text-secondary-foreground hover:bg-accent'
-          : 'bg-primary text-primary-foreground shadow-sm hover:opacity-95',
+          ? 'glass text-secondary-foreground hover:border-primary/40 hover:text-primary'
+          : 'glow-cyan bg-primary font-semibold text-primary-foreground hover:brightness-110',
         pending && 'opacity-60',
       )}
     >
@@ -197,7 +198,7 @@ function CategoriesButton({ mangaId, currentIds }: { mangaId: number; currentIds
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 rounded-xl bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground transition hover:bg-accent"
+        className="glass inline-flex items-center gap-2 rounded-xl px-3 py-1.5 text-sm font-medium text-secondary-foreground transition hover:border-primary/40 hover:text-primary"
       >
         <FolderTree className="size-4" />
         Categories
@@ -236,7 +237,8 @@ function ChapterList({ mangaId }: { mangaId: number }) {
   return (
     <section className="px-4 pb-10 md:px-8">
       <div className="mb-3 flex items-end justify-between gap-3">
-        <h2 className="font-display text-xl font-semibold tracking-tight">
+        <h2 className="flex items-center gap-2 font-display text-xl font-semibold uppercase tracking-tight">
+          <span className="h-4 w-0.5 rounded-full bg-primary shadow-[0_0_10px_var(--accent-cyan)]" />
           {chapters.length} chapter{chapters.length === 1 ? '' : 's'}
         </h2>
         <div className="flex items-center gap-2">
@@ -248,7 +250,7 @@ function ChapterList({ mangaId }: { mangaId: number }) {
                 if (r.error) toast.error(r.error.message);
                 else toast.success(`Queued ${downloadableUnread.length} chapter${downloadableUnread.length === 1 ? '' : 's'}`);
               }}
-              className="inline-flex items-center gap-2 rounded-xl border bg-elevated px-3 py-2 text-sm font-medium text-muted-foreground transition hover:text-foreground"
+              className="glass inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
             >
               <CloudDownload className="size-4" />
               Download {downloadableUnread.length} unread
@@ -258,7 +260,7 @@ function ChapterList({ mangaId }: { mangaId: number }) {
             <Link
               to="/manga/$mangaId/chapter/$chapterId"
               params={{ mangaId: String(mangaId), chapterId: String(firstUnread.id) }}
-              className="inline-flex items-center gap-2 rounded-xl bg-primary px-3 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-95"
+              className="glow-cyan inline-flex items-center gap-2 rounded-xl bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground transition hover:brightness-110"
             >
               <Play className="size-4" />
               {firstUnread.lastPageRead > 0 ? 'Continue reading' : 'Start reading'}
@@ -268,7 +270,7 @@ function ChapterList({ mangaId }: { mangaId: number }) {
       </div>
 
       {error ? (
-        <p className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <p className="glass rounded-xl border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error.message}
         </p>
       ) : null}
@@ -304,7 +306,7 @@ function VirtualChapterList({
   return (
     <div
       ref={parentRef}
-      className="max-h-[70vh] overflow-y-auto rounded-2xl border bg-elevated scrollbar-thin"
+      className="glass max-h-[70vh] overflow-y-auto rounded-2xl scrollbar-thin"
     >
       <div
         style={{ height: virtualizer.getTotalSize(), position: 'relative', width: '100%' }}
@@ -323,17 +325,24 @@ function VirtualChapterList({
                 width: '100%',
                 transform: `translateY(${vi.start}px)`,
               }}
-              className={cn(vi.index !== 0 && 'border-t')}
+              className={cn(vi.index !== 0 && 'border-t border-glass-border')}
             >
               <Link
                 to="/manga/$mangaId/chapter/$chapterId"
                 params={{ mangaId: String(mangaId), chapterId: String(c.id) }}
                 className={cn(
-                  'flex items-center gap-3 px-4 py-3 transition hover:bg-accent',
-                  c.isRead && 'opacity-60',
+                  'group/row flex items-center gap-3 px-4 py-3 transition-colors hover:bg-accent/40',
+                  c.isRead && 'opacity-55',
                 )}
               >
-                <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-background text-muted-foreground">
+                <span
+                  className={cn(
+                    'grid size-8 shrink-0 place-items-center rounded-lg transition-colors',
+                    c.isRead
+                      ? 'bg-background/60 text-primary'
+                      : 'bg-background/60 text-muted-foreground group-hover/row:text-primary',
+                  )}
+                >
                   {c.isRead ? <CheckCircle2 className="size-4" /> : <BookOpen className="size-4" />}
                 </span>
                 <div className="min-w-0 flex-1">
@@ -372,13 +381,13 @@ function VirtualChapterList({
 
 function ChapterListSkeleton() {
   return (
-    <div className="divide-y rounded-2xl border bg-elevated">
+    <div className="glass divide-y divide-glass-border rounded-2xl">
       {Array.from({ length: 8 }).map((_, i) => (
         <div key={i} className="flex items-center gap-3 px-4 py-3">
-          <div className="size-8 animate-pulse rounded-lg bg-background" />
+          <div className="size-8 animate-pulse rounded-lg bg-background/60" />
           <div className="flex-1 space-y-1.5">
-            <div className="h-3 w-2/3 animate-pulse rounded bg-background" />
-            <div className="h-2.5 w-1/3 animate-pulse rounded bg-background" />
+            <div className="h-3 w-2/3 animate-pulse rounded bg-background/60" />
+            <div className="h-2.5 w-1/3 animate-pulse rounded bg-background/60" />
           </div>
         </div>
       ))}
@@ -390,12 +399,12 @@ function DetailSkeleton() {
   return (
     <div className="px-4 py-6 md:px-8">
       <div className="flex flex-col items-center gap-5 md:grid md:grid-cols-[200px_1fr] md:items-start md:gap-8">
-        <div className="aspect-[2/3] w-32 animate-pulse rounded-2xl bg-elevated md:w-full" />
+        <div className="aspect-[2/3] w-32 animate-pulse rounded-2xl bg-elevated/60 ring-1 ring-glass-border md:w-full" />
         <div className="w-full space-y-3">
-          <div className="h-7 w-2/3 animate-pulse rounded bg-elevated" />
-          <div className="h-4 w-1/3 animate-pulse rounded bg-elevated" />
-          <div className="h-3 w-full animate-pulse rounded bg-elevated" />
-          <div className="h-3 w-5/6 animate-pulse rounded bg-elevated" />
+          <div className="h-7 w-2/3 animate-pulse rounded bg-elevated/60" />
+          <div className="h-4 w-1/3 animate-pulse rounded bg-elevated/60" />
+          <div className="h-3 w-full animate-pulse rounded bg-elevated/60" />
+          <div className="h-3 w-5/6 animate-pulse rounded bg-elevated/60" />
         </div>
       </div>
     </div>

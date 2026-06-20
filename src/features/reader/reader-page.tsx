@@ -385,8 +385,8 @@ export function ReaderPage({ chapterId: requestedChapterId }: { chapterId: numbe
     return (
       <div className="fixed inset-0 z-50 grid place-items-center bg-black p-6 text-center text-white">
         <div>
-          <p className="text-lg font-semibold">Couldn't load chapter</p>
-          <p className="mt-1 text-sm opacity-80">{chapError.message}</p>
+          <p className="font-display text-lg font-semibold uppercase tracking-tight">Couldn't load chapter</p>
+          <p className="mt-1 text-sm opacity-70">{chapError.message}</p>
         </div>
       </div>
     );
@@ -402,8 +402,8 @@ export function ReaderPage({ chapterId: requestedChapterId }: { chapterId: numbe
       ) : streamState.status === 'error' ? (
         <div className="grid h-full w-full place-items-center px-6 text-center text-white">
           <div>
-            <p className="text-lg font-semibold">Couldn't load pages</p>
-            <p className="mt-1 text-sm opacity-80">{streamState.message}</p>
+            <p className="font-display text-lg font-semibold uppercase tracking-tight">Couldn't load pages</p>
+            <p className="mt-1 text-sm opacity-70">{streamState.message}</p>
           </div>
         </div>
       ) : settings.mode === 'single' ? (
@@ -471,8 +471,8 @@ export function ReaderPage({ chapterId: requestedChapterId }: { chapterId: numbe
 
 function LoadingOverlay() {
   return (
-    <div className="grid h-full w-full place-items-center text-white/70">
-      <div className="size-8 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+    <div className="grid h-full w-full place-items-center">
+      <div className="size-8 animate-spin rounded-full border-2 border-white/15 border-t-primary shadow-[0_0_18px_-2px_var(--accent-cyan)]" />
     </div>
   );
 }

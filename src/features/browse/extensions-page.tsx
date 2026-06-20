@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useMutation, useQuery } from 'urql';
-import { ArrowLeft, Loader2, RefreshCcw, Upload } from 'lucide-react';
+import { ArrowLeft, Loader2, RefreshCcw, Search, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { AuthImage } from '@/components/auth-image';
 import {
@@ -29,7 +29,15 @@ export function ExtensionsPage() {
   }, [exts]);
 
   const [tab, setTab] = useState<Tab>('installed');
-  const list = buckets[tab];
+  const [filter, setFilter] = useState('');
+
+  const list = useMemo(() => {
+    const q = filter.trim().toLowerCase();
+    if (!q) return buckets[tab];
+    return buckets[tab].filter((e) =>
+      `${e.name} ${e.pkgName} ${e.lang}`.toLowerCase().includes(q),
+    );
+  }, [buckets, tab, filter]);
 
   async function refresh() {
     setRefreshing(true);
@@ -61,14 +69,14 @@ export function ExtensionsPage() {
     <div className="px-4 py-6 md:px-8">
       <Link
         to="/browse"
-        className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
+        className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-primary"
       >
         <ArrowLeft className="size-4" /> Browse
       </Link>
 
-      <header className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <header className="reveal mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="font-display text-3xl font-semibold tracking-tight">Extensions</h2>
+          <h2 className="font-display text-3xl font-semibold uppercase tracking-tight">Extensions</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Install and update sources from your configured extension repos.
           </p>
@@ -78,12 +86,12 @@ export function ExtensionsPage() {
             type="button"
             onClick={refresh}
             disabled={refreshing}
-            className="inline-flex items-center gap-2 rounded-xl border bg-elevated px-3 py-2 text-sm font-medium text-muted-foreground transition hover:text-foreground"
+            className="glass inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
           >
             <RefreshCcw className={cn('size-4', refreshing && 'animate-spin')} />
             Refresh
           </button>
-          <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-3 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-95">
+          <label className="glow-cyan inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground transition hover:brightness-110">
             <Upload className="size-4" />
             Install APK
             <input
@@ -100,14 +108,25 @@ export function ExtensionsPage() {
         </div>
       </header>
 
-      <div className="mb-4 flex gap-1 rounded-xl bg-elevated p-1">
+      <div className="glass mb-4 flex gap-1 rounded-xl p-1">
         <TabButton active={tab === 'updates'} onClick={() => setTab('updates')} label="Updates" count={buckets.updates.length} />
         <TabButton active={tab === 'installed'} onClick={() => setTab('installed')} label="Installed" count={buckets.installed.length} />
         <TabButton active={tab === 'available'} onClick={() => setTab('available')} label="Available" count={buckets.available.length} />
       </div>
 
+      <label className="relative mb-4 flex items-center">
+        <Search className="absolute left-3 size-4 text-muted-foreground" />
+        <input
+          type="search"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          placeholder="Search extensions by name…"
+          className="glass h-10 w-full rounded-xl pl-9 pr-3 text-sm outline-none transition focus:border-primary/50 focus:shadow-[0_0_18px_-6px_var(--accent-cyan)]"
+        />
+      </label>
+
       {error ? (
-        <p className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <p className="glass rounded-xl border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error.message}
         </p>
       ) : null}
@@ -115,15 +134,17 @@ export function ExtensionsPage() {
       {fetching && exts.length === 0 ? (
         <p className="text-sm text-muted-foreground">Loading…</p>
       ) : list.length === 0 ? (
-        <p className="rounded-xl border border-dashed bg-elevated/40 px-4 py-12 text-center text-sm text-muted-foreground">
-          {tab === 'updates'
-            ? 'All extensions are up to date.'
-            : tab === 'installed'
-              ? 'No extensions installed.'
-              : 'No extensions available — try Refresh.'}
+        <p className="glass rounded-xl border-dashed border-glass-border px-4 py-12 text-center text-sm text-muted-foreground">
+          {filter.trim()
+            ? `No extensions match “${filter.trim()}”.`
+            : tab === 'updates'
+              ? 'All extensions are up to date.'
+              : tab === 'installed'
+                ? 'No extensions installed.'
+                : 'No extensions available — try Refresh.'}
         </p>
       ) : (
-        <ul className="divide-y rounded-2xl border bg-elevated">
+        <ul className="glass divide-y divide-glass-border overflow-hidden rounded-2xl">
           {list.map((e) => (
             <ExtensionRow key={e.pkgName} ext={e} />
           ))}
@@ -149,11 +170,13 @@ function TabButton({
       type="button"
       onClick={onClick}
       className={cn(
-        'flex-1 rounded-lg px-3 py-1.5 text-sm font-medium transition',
-        active ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground',
+        'flex-1 rounded-lg px-3 py-1.5 font-display text-sm font-medium uppercase tracking-wide transition',
+        active
+          ? 'bg-primary text-primary-foreground shadow-[0_0_16px_-5px_var(--accent-cyan)]'
+          : 'text-muted-foreground hover:text-foreground',
       )}
     >
-      {label} <span className="opacity-60">· {count}</span>
+      {label} <span className="font-mono opacity-60">· {count}</span>
     </button>
   );
 }
@@ -205,7 +228,7 @@ function ExtensionRow({ ext }: { ext: Ext }) {
       <AuthImage
         src={resolveUrl(ext.iconUrl)}
         alt=""
-        className="size-10 shrink-0 rounded-lg bg-background object-contain ring-1 ring-border"
+        className="size-10 shrink-0 rounded-lg bg-background/60 object-contain ring-1 ring-glass-border"
         onError={(e) => ((e.currentTarget as HTMLImageElement).style.visibility = 'hidden')}
       />
       <div className="min-w-0 flex-1">
@@ -228,11 +251,12 @@ function ExtensionRow({ ext }: { ext: Ext }) {
         onClick={action.perform}
         disabled={busy}
         className={cn(
-          'inline-flex min-w-24 items-center justify-center gap-1.5 rounded-xl px-3 py-1.5 text-sm font-medium transition',
-          action.variant === 'primary' && 'bg-primary text-primary-foreground hover:opacity-95',
+          'inline-flex min-w-24 items-center justify-center gap-1.5 rounded-xl px-3 py-1.5 text-sm font-semibold transition',
+          action.variant === 'primary' &&
+            'glow-cyan bg-primary text-primary-foreground hover:brightness-110',
           action.variant === 'destructive' &&
             'border border-destructive/40 bg-destructive/10 text-destructive hover:bg-destructive/20',
-          action.variant === 'ghost' && 'border bg-elevated text-muted-foreground hover:text-foreground',
+          action.variant === 'ghost' && 'glass text-muted-foreground hover:text-foreground',
           busy && 'opacity-60',
         )}
       >

@@ -3,13 +3,16 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * sorayomi theme — warm-neutral surfaces with a peach/coral accent that flatters
- * manga cover art. Tokens follow the shadcn convention so any shadcn component
- * picks them up unchanged.
+ * sorayomi — "Tokyo Night" theme.
+ * Navy (#1a1b26) surfaces, frosted glass panels, soft blue primary with a
+ * lavender-purple counter-accent and muted cyan/teal, gradient-mesh atmosphere
+ * and a fine scanline grid.
+ * Tokens keep the shadcn names so every shadcn component picks them up unchanged.
  */
 @theme {
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Sora', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Chakra Petch', 'Sora', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', 'Menlo', monospace;
 
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
@@ -20,67 +23,85 @@
   --color-bg-elevated: var(--elevated);
 }
 
-:root {
-  --background: oklch(0.985 0.005 80);
-  --foreground: oklch(0.18 0.01 60);
-  --card: oklch(0.99 0.004 80);
-  --card-foreground: oklch(0.18 0.01 60);
-  --popover: oklch(0.99 0.004 80);
-  --popover-foreground: oklch(0.18 0.01 60);
-  --primary: oklch(0.72 0.16 35);
-  --primary-foreground: oklch(0.99 0.005 80);
-  --secondary: oklch(0.95 0.01 70);
-  --secondary-foreground: oklch(0.22 0.02 60);
-  --muted: oklch(0.95 0.008 70);
-  --muted-foreground: oklch(0.5 0.02 60);
-  --accent: oklch(0.93 0.04 50);
-  --accent-foreground: oklch(0.22 0.04 50);
-  --destructive: oklch(0.6 0.21 25);
-  --destructive-foreground: oklch(0.99 0.005 80);
-  --border: oklch(0.9 0.01 70);
-  --input: oklch(0.93 0.008 70);
-  --ring: oklch(0.72 0.16 35 / 0.5);
+/* Dark is the canonical experience — Tokyo Night palette (navy base, soft blue +
+ * lavender-purple accents, muted cyan/teal). */
+.dark {
+  --background: oklch(0.195 0.025 273); /* #1a1b26 */
+  --foreground: oklch(0.85 0.05 277); /* #c0caf5 */
+  --card: oklch(0.255 0.03 274); /* #24283b */
+  --card-foreground: oklch(0.85 0.05 277);
+  --popover: oklch(0.24 0.03 274);
+  --popover-foreground: oklch(0.85 0.05 277);
+  --primary: oklch(0.7 0.13 265); /* #7aa2f7 blue */
+  --primary-foreground: oklch(0.17 0.03 273);
+  --secondary: oklch(0.27 0.03 274);
+  --secondary-foreground: oklch(0.85 0.05 277);
+  --muted: oklch(0.25 0.028 274);
+  --muted-foreground: oklch(0.62 0.05 274); /* #565f89-ish, brightened */
+  --accent: oklch(0.32 0.045 270);
+  --accent-foreground: oklch(0.88 0.05 277);
+  --destructive: oklch(0.7 0.16 12); /* #f7768e */
+  --destructive-foreground: oklch(0.97 0.01 277);
+  --border: oklch(0.6 0.05 270 / 0.22);
+  --input: oklch(0.29 0.03 274);
+  --ring: oklch(0.7 0.13 265 / 0.55);
 
-  --rail: oklch(0.97 0.006 70);
-  --elevated: oklch(1 0 0);
+  --rail: oklch(0.175 0.025 273); /* #16161e */
+  --elevated: oklch(0.245 0.03 274);
 
-  /* Domain-semantic tokens (used across library, downloads, reader) */
-  --unread: oklch(0.72 0.16 35);
-  --downloaded: oklch(0.7 0.14 160);
-  --bookmarked: oklch(0.72 0.16 80);
-  --tracker-mal: oklch(0.55 0.22 260);
-  --tracker-anilist: oklch(0.62 0.2 220);
+  /* Accents — names kept; cyan slot is the soft Tokyo-Night cyan, magenta slot
+   * is the lavender-purple. Glows/atmosphere read these. */
+  --accent-cyan: oklch(0.81 0.09 232); /* #7dcfff */
+  --accent-magenta: oklch(0.73 0.13 300); /* #bb9af7 */
+
+  /* Glass */
+  --glass: oklch(0.27 0.032 274 / 0.55);
+  --glass-border: oklch(0.7 0.06 270 / 0.18);
+
+  /* Domain-semantic tokens (library, downloads, reader) */
+  --unread: oklch(0.7 0.13 265); /* blue */
+  --downloaded: oklch(0.8 0.1 175); /* #73daca teal */
+  --bookmarked: oklch(0.77 0.13 55); /* #ff9e64 orange */
+  --tracker-mal: oklch(0.62 0.18 290);
+  --tracker-anilist: oklch(0.68 0.13 250);
 }
 
-.dark {
-  --background: oklch(0.16 0.012 285);
-  --foreground: oklch(0.96 0.005 80);
-  --card: oklch(0.2 0.012 285);
-  --card-foreground: oklch(0.96 0.005 80);
-  --popover: oklch(0.2 0.012 285);
-  --popover-foreground: oklch(0.96 0.005 80);
-  --primary: oklch(0.78 0.16 35);
-  --primary-foreground: oklch(0.18 0.02 30);
-  --secondary: oklch(0.25 0.014 285);
-  --secondary-foreground: oklch(0.96 0.005 80);
-  --muted: oklch(0.24 0.012 285);
-  --muted-foreground: oklch(0.7 0.02 80);
-  --accent: oklch(0.3 0.04 35);
-  --accent-foreground: oklch(0.96 0.005 80);
-  --destructive: oklch(0.65 0.22 25);
+/* Light counterpart — Tokyo Night Day: cool porcelain, same blue/purple identity. */
+:root {
+  --background: oklch(0.95 0.01 270); /* #e1e2e7 */
+  --foreground: oklch(0.32 0.08 268); /* #3760bf */
+  --card: oklch(0.985 0.006 270);
+  --card-foreground: oklch(0.32 0.08 268);
+  --popover: oklch(0.985 0.006 270);
+  --popover-foreground: oklch(0.32 0.08 268);
+  --primary: oklch(0.56 0.16 262); /* #2e7de9 */
+  --primary-foreground: oklch(0.99 0.005 270);
+  --secondary: oklch(0.91 0.012 270);
+  --secondary-foreground: oklch(0.34 0.07 268);
+  --muted: oklch(0.91 0.01 270);
+  --muted-foreground: oklch(0.52 0.05 270);
+  --accent: oklch(0.88 0.04 262);
+  --accent-foreground: oklch(0.34 0.08 262);
+  --destructive: oklch(0.58 0.2 18);
   --destructive-foreground: oklch(0.99 0.005 80);
-  --border: oklch(0.28 0.012 285 / 0.6);
-  --input: oklch(0.28 0.012 285);
-  --ring: oklch(0.78 0.16 35 / 0.55);
+  --border: oklch(0.5 0.05 270 / 0.2);
+  --input: oklch(0.89 0.012 270);
+  --ring: oklch(0.56 0.16 262 / 0.5);
 
-  --rail: oklch(0.18 0.012 285);
-  --elevated: oklch(0.22 0.013 285);
+  --rail: oklch(0.93 0.012 270);
+  --elevated: oklch(1 0 0);
 
-  --unread: oklch(0.78 0.16 35);
-  --downloaded: oklch(0.75 0.14 160);
-  --bookmarked: oklch(0.8 0.16 80);
-  --tracker-mal: oklch(0.65 0.22 260);
-  --tracker-anilist: oklch(0.7 0.2 220);
+  --accent-cyan: oklch(0.6 0.12 235);
+  --accent-magenta: oklch(0.56 0.16 300);
+
+  --glass: oklch(1 0 0 / 0.6);
+  --glass-border: oklch(0.45 0.06 270 / 0.16);
+
+  --unread: oklch(0.56 0.16 262);
+  --downloaded: oklch(0.58 0.1 178);
+  --bookmarked: oklch(0.62 0.14 55);
+  --tracker-mal: oklch(0.52 0.18 290);
+  --tracker-anilist: oklch(0.6 0.13 250);
 }
 
 @theme inline {
@@ -105,6 +126,10 @@
   --color-ring: var(--ring);
   --color-rail: var(--rail);
   --color-elevated: var(--elevated);
+  --color-accent-cyan: var(--accent-cyan);
+  --color-accent-magenta: var(--accent-magenta);
+  --color-glass: var(--glass);
+  --color-glass-border: var(--glass-border);
   --color-unread: var(--unread);
   --color-downloaded: var(--downloaded);
   --color-bookmarked: var(--bookmarked);
@@ -128,10 +153,15 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
-  ::selection {
-    background-color: color-mix(in oklch, var(--primary) 35%, transparent);
+  /* Display type gets the squared techno face with tightened tracking. */
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
   }
-  /* Density variants — opt-in via [data-density="compact"] on a layout root */
+  ::selection {
+    background-color: color-mix(in oklch, var(--accent-magenta) 40%, transparent);
+    color: var(--foreground);
+  }
   [data-density='compact'] {
     --space-tight: 0.5rem;
   }
@@ -140,9 +170,122 @@
 @layer utilities {
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
+    scrollbar-color: color-mix(in oklch, var(--accent-cyan) 35%, transparent) transparent;
   }
   .reader-pixelated img {
     image-rendering: pixelated;
+  }
+
+  /* Frosted-glass panel. */
+  .glass {
+    background-color: var(--glass);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    border: 1px solid var(--glass-border);
+  }
+  .glass-strong {
+    background-color: color-mix(in oklch, var(--glass) 75%, var(--background));
+    backdrop-filter: blur(24px) saturate(150%);
+    -webkit-backdrop-filter: blur(24px) saturate(150%);
+    border: 1px solid var(--glass-border);
+  }
+
+  /* Neon glows. */
+  .glow-cyan {
+    box-shadow:
+      0 0 0 1px color-mix(in oklch, var(--accent-cyan) 35%, transparent),
+      0 0 24px -4px color-mix(in oklch, var(--accent-cyan) 55%, transparent);
+  }
+  .glow-magenta {
+    box-shadow:
+      0 0 0 1px color-mix(in oklch, var(--accent-magenta) 35%, transparent),
+      0 0 24px -4px color-mix(in oklch, var(--accent-magenta) 55%, transparent);
+  }
+  .text-glow-cyan {
+    text-shadow: 0 0 18px color-mix(in oklch, var(--accent-cyan) 60%, transparent);
+  }
+
+  /* Gradient-mesh + scanline atmosphere, mounted once behind the app. */
+  .atmosphere {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(
+        60rem 60rem at 12% -8%,
+        color-mix(in oklch, var(--accent-cyan) 15%, transparent),
+        transparent 60%
+      ),
+      radial-gradient(
+        50rem 50rem at 108% 12%,
+        color-mix(in oklch, var(--accent-magenta) 14%, transparent),
+        transparent 55%
+      ),
+      radial-gradient(
+        70rem 50rem at 50% 120%,
+        color-mix(in oklch, var(--primary) 10%, transparent),
+        transparent 60%
+      );
+  }
+  /* Fine scanline grid overlay. */
+  .atmosphere::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(
+        to right,
+        color-mix(in oklch, var(--foreground) 4%, transparent) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        to bottom,
+        color-mix(in oklch, var(--foreground) 4%, transparent) 1px,
+        transparent 1px
+      );
+    background-size: 56px 56px;
+    mask-image: radial-gradient(120rem 80rem at 50% 0%, black, transparent 75%);
+  }
+  /* Animated grain overlay. */
+  .atmosphere::after {
+    content: '';
+    position: absolute;
+    inset: -50%;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation: grain 8s steps(6) infinite;
+  }
+  @keyframes grain {
+    0%, 100% { transform: translate(0, 0); }
+    10% { transform: translate(-3%, -4%); }
+    30% { transform: translate(2%, 3%); }
+    50% { transform: translate(-2%, 4%); }
+    70% { transform: translate(3%, -2%); }
+    90% { transform: translate(-3%, 1%); }
+  }
+
+  /* Staggered fade-up reveal — set inline animation-delay for cascade. */
+  .reveal {
+    animation: reveal-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes reveal-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .atmosphere::after {
+      animation: none;
+    }
+    .reveal {
+      animation: none;
+    }
   }
 }

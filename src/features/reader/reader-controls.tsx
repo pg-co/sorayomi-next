@@ -26,19 +26,19 @@ export function ReaderTopBar({
       <Link
         to="/manga/$mangaId"
         params={{ mangaId: String(mangaId) }}
-        className="pointer-events-auto grid size-10 place-items-center rounded-xl bg-black/40 backdrop-blur transition hover:bg-black/60"
+        className="pointer-events-auto grid size-10 place-items-center rounded-xl bg-black/40 ring-1 ring-white/10 backdrop-blur transition hover:text-primary hover:ring-primary/60 hover:shadow-[0_0_18px_-4px_var(--accent-cyan)]"
         aria-label="Back to manga"
       >
         <X className="size-5" />
       </Link>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-xs uppercase tracking-wider opacity-80">{mangaTitle}</p>
-        <p className="truncate text-sm font-medium">{chapterTitle}</p>
+        <p className="truncate font-mono text-xs uppercase tracking-wider opacity-70">{mangaTitle}</p>
+        <p className="truncate font-display text-sm font-medium">{chapterTitle}</p>
       </div>
       <button
         type="button"
         onClick={onSettings}
-        className="pointer-events-auto grid size-10 place-items-center rounded-xl bg-black/40 backdrop-blur transition hover:bg-black/60"
+        className="pointer-events-auto grid size-10 place-items-center rounded-xl bg-black/40 ring-1 ring-white/10 backdrop-blur transition hover:text-primary hover:ring-primary/60 hover:shadow-[0_0_18px_-4px_var(--accent-cyan)]"
         aria-label="Reader settings"
       >
         <Settings2 className="size-5" />
@@ -83,9 +83,9 @@ export function ReaderBottomBar({
         onClick={onPrevChapter}
       />
 
-      <div className="pointer-events-auto flex flex-1 items-center gap-3 rounded-xl bg-black/40 px-3 py-2 backdrop-blur">
-        <span className="min-w-12 text-center text-xs tabular-nums opacity-90">
-          {page + 1} / {totalPages || '–'}
+      <div className="pointer-events-auto flex flex-1 items-center gap-3 rounded-xl bg-black/40 px-3 py-2 ring-1 ring-white/10 backdrop-blur">
+        <span className="min-w-14 text-center font-mono text-xs tabular-nums text-primary">
+          {String(page + 1).padStart(2, '0')} / {totalPages ? String(totalPages).padStart(2, '0') : '––'}
         </span>
         <input
           type="range"
@@ -128,8 +128,10 @@ function ChapterNavButton({
       disabled={disabled}
       aria-label={`${direction === 'prev' ? 'Previous' : 'Next'} chapter`}
       className={cn(
-        'pointer-events-auto grid size-10 place-items-center rounded-xl bg-black/40 backdrop-blur transition',
-        disabled ? 'opacity-30' : 'hover:bg-black/60',
+        'pointer-events-auto grid size-10 place-items-center rounded-xl bg-black/40 ring-1 ring-white/10 backdrop-blur transition',
+        disabled
+          ? 'opacity-30'
+          : 'hover:text-primary hover:ring-primary/60 hover:shadow-[0_0_18px_-4px_var(--accent-cyan)]',
       )}
     >
       <Icon className="size-5" />
