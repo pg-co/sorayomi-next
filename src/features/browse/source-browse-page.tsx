@@ -4,21 +4,14 @@ import { useMutation, useQuery } from 'urql';
 import { ArrowLeft, Search } from 'lucide-react';
 import { FETCH_SOURCE_MANGA_DOC, SOURCE_DETAIL_DOC } from './queries';
 import { AuthImage } from '@/components/auth-image';
-import { MangaCard } from '@/features/library/manga-card';
+import { MangaCard, type MangaCardData } from '@/features/library/manga-card';
 import { resolveUrl } from '@/lib/server-config';
 import { cn } from '@/lib/utils';
 import { FetchSourceMangaType } from '@/lib/graphql/__generated__/graphql';
 
 type Tab = FetchSourceMangaType;
 
-type Item = {
-  id: number;
-  title: string;
-  thumbnailUrl?: string | null;
-  inLibrary: boolean;
-  unreadCount: number;
-  downloadCount: number;
-};
+type Item = MangaCardData & { inLibrary: boolean };
 
 export function SourceBrowsePage({ sourceId, initialQuery }: { sourceId: string; initialQuery?: string }) {
   const [{ data: srcData }] = useQuery({
@@ -31,7 +24,7 @@ export function SourceBrowsePage({ sourceId, initialQuery }: { sourceId: string;
     initialQuery ? FetchSourceMangaType.Search : FetchSourceMangaType.Popular,
   );
   const [query, setQuery] = useState(initialQuery ?? '');
-  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState(initialQuery ?? '');
 
   useEffect(() => {
     const t = window.setTimeout(() => setDebouncedQuery(query), 400);
@@ -170,7 +163,7 @@ function SourceMangaGrid({ sourceId, type, query }: { sourceId: string; type: Ta
           setHasNext(false);
           return;
         }
-        setPages((p) => [...p, payload.mangas as Item[]]);
+        setPages((p) => [...p, payload.mangas]);
         setHasNext(payload.hasNextPage);
       })
       .finally(() => {

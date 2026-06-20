@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useClient, useQuery } from 'urql';
-import { ArrowLeft, ChevronRight, Languages, Search } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Search } from 'lucide-react';
 import { FETCH_SOURCE_MANGA_DOC, SOURCES_DOC } from './queries';
+import { LangChip } from './lang-chip';
+import { useLanguageFilter } from './use-language-filter';
 import { AuthImage } from '@/components/auth-image';
 import { MangaCard, type MangaCardData } from '@/features/library/manga-card';
 import { resolveUrl } from '@/lib/server-config';
@@ -20,7 +22,6 @@ type SourceSummary = {
 };
 
 type SectionState =
-  | { status: 'pending' }
   | { status: 'loading' }
   | { status: 'loaded'; results: MangaCardData[]; hasNextPage: boolean }
   | { status: 'error'; message: string };
@@ -33,7 +34,6 @@ export function GlobalSearchPage({ initialQuery }: { initialQuery?: string }) {
   const [{ data }] = useQuery({ query: SOURCES_DOC });
 
   const [showNsfw, setShowNsfw] = useShowNsfw();
-  const [activeLang, setActiveLang] = useState<string | null>(null);
   const [hideEmpty, setHideEmpty] = useState(true);
 
   const [input, setInput] = useState(initialQuery ?? '');
@@ -66,24 +66,12 @@ export function GlobalSearchPage({ initialQuery }: { initialQuery?: string }) {
     [data],
   );
 
-  const langs = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const s of allSources) {
-      if (!showNsfw && s.isNsfw) continue;
-      counts.set(s.lang, (counts.get(s.lang) ?? 0) + 1);
-    }
-    return [...counts.entries()].sort((a, b) => a[0].localeCompare(b[0]));
-  }, [allSources, showNsfw]);
-
-  const visibleSources = useMemo(
-    () =>
-      allSources.filter((s) => {
-        if (!showNsfw && s.isNsfw) return false;
-        if (activeLang && s.lang !== activeLang) return false;
-        return true;
-      }),
-    [allSources, showNsfw, activeLang],
+  const { langs, activeLang, setActiveLang, totalCount, matches } = useLanguageFilter(
+    allSources,
+    showNsfw,
   );
+
+  const visibleSources = useMemo(() => allSources.filter(matches), [allSources, matches]);
 
   return (
     <div className="px-4 py-6 md:px-8">
@@ -145,7 +133,7 @@ export function GlobalSearchPage({ initialQuery }: { initialQuery?: string }) {
             active={activeLang === null}
             onClick={() => setActiveLang(null)}
             label="All"
-            count={visibleSources.length}
+            count={totalCount}
           />
           {langs.map(([lang, n]) => (
             <LangChip
@@ -190,7 +178,7 @@ function SearchRunner({
   useEffect(() => {
     setStates(() => {
       const init: Record<string, SectionState> = {};
-      for (const s of sources) init[s.id] = { status: 'pending' };
+      for (const s of sources) init[s.id] = { status: 'loading' };
       return init;
     });
 
@@ -203,7 +191,6 @@ function SearchRunner({
       while (active < CONCURRENCY && queue.length > 0) {
         const src = queue.shift()!;
         active++;
-        setStates((prev) => ({ ...prev, [src.id]: { status: 'loading' } }));
 
         client
           .mutation(FETCH_SOURCE_MANGA_DOC, {
@@ -223,15 +210,7 @@ function SearchRunner({
               return;
             }
             const payload = res.data?.fetchSourceManga;
-            const results: MangaCardData[] = (payload?.mangas ?? [])
-              .slice(0, PER_SOURCE_LIMIT)
-              .map((m) => ({
-                id: m.id,
-                title: m.title,
-                thumbnailUrl: m.thumbnailUrl,
-                unreadCount: m.unreadCount,
-                downloadCount: m.downloadCount,
-              }));
+            const results = (payload?.mangas ?? []).slice(0, PER_SOURCE_LIMIT);
             setStates((prev) => ({
               ...prev,
               [src.id]: {
@@ -286,7 +265,7 @@ function SearchRunner({
   return (
     <div className="space-y-6">
       {visible.map((s) => (
-        <SourceSection key={s.id} source={s} state={states[s.id] ?? { status: 'pending' }} query={query} />
+        <SourceSection key={s.id} source={s} state={states[s.id] ?? { status: 'loading' }} query={query} />
       ))}
     </div>
   );
@@ -335,7 +314,7 @@ function SourceSection({
 }
 
 function SectionBody({ state }: { state: SectionState }) {
-  if (state.status === 'pending' || state.status === 'loading') {
+  if (state.status === 'loading') {
     return (
       <div className="flex gap-3 overflow-hidden">
         {Array.from({ length: 6 }).map((_, i) => (
@@ -363,34 +342,5 @@ function SectionBody({ state }: { state: SectionState }) {
         </div>
       ))}
     </div>
-  );
-}
-
-function LangChip({
-  active,
-  onClick,
-  label,
-  count,
-}: {
-  active: boolean;
-  onClick: () => void;
-  label: string;
-  count: number;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-xs font-medium transition',
-        active
-          ? 'border border-primary/50 bg-primary/10 text-primary shadow-[0_0_14px_-5px_var(--accent-cyan)]'
-          : 'glass text-muted-foreground hover:text-foreground',
-      )}
-    >
-      <Languages className="size-3" />
-      {label}
-      <span className="opacity-60">· {count}</span>
-    </button>
   );
 }

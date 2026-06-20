@@ -3,6 +3,8 @@ import { Link } from '@tanstack/react-router';
 import { useQuery } from 'urql';
 import { ChevronRight, Compass, Languages, Puzzle, Search } from 'lucide-react';
 import { SOURCES_DOC } from './queries';
+import { LangChip } from './lang-chip';
+import { useLanguageFilter } from './use-language-filter';
 import { AuthImage } from '@/components/auth-image';
 import { resolveUrl } from '@/lib/server-config';
 import { useShowNsfw } from '@/lib/client-prefs';
@@ -14,26 +16,18 @@ export function SourcesPage({ initialFilter }: { initialFilter?: string } = {}) 
 
   const [filter, setFilter] = useState(initialFilter ?? '');
   const [showNsfw, setShowNsfw] = useShowNsfw();
-  const [activeLang, setActiveLang] = useState<string | null>(null);
 
-  const langs = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const s of sources) {
-      if (!showNsfw && s.isNsfw) continue;
-      counts.set(s.lang, (counts.get(s.lang) ?? 0) + 1);
-    }
-    return [...counts.entries()].sort((a, b) => a[0].localeCompare(b[0]));
-  }, [sources, showNsfw]);
+  const { langs, activeLang, setActiveLang, totalCount, matches } = useLanguageFilter(
+    sources,
+    showNsfw,
+  );
 
   const visible = useMemo(() => {
     const q = filter.trim().toLowerCase();
-    return sources.filter((s) => {
-      if (!showNsfw && s.isNsfw) return false;
-      if (activeLang && s.lang !== activeLang) return false;
-      if (q && !`${s.name} ${s.displayName}`.toLowerCase().includes(q)) return false;
-      return true;
-    });
-  }, [sources, showNsfw, activeLang, filter]);
+    return sources.filter(
+      (s) => matches(s) && (!q || `${s.name} ${s.displayName}`.toLowerCase().includes(q)),
+    );
+  }, [sources, matches, filter]);
 
   const grouped = useMemo(() => {
     const map = new Map<string, typeof visible>();
@@ -94,7 +88,7 @@ export function SourcesPage({ initialFilter }: { initialFilter?: string } = {}) 
             active={activeLang === null}
             onClick={() => setActiveLang(null)}
             label="All"
-            count={visible.length}
+            count={totalCount}
           />
           {langs.map(([lang, n]) => (
             <LangChip
@@ -160,34 +154,6 @@ export function SourcesPage({ initialFilter }: { initialFilter?: string } = {}) 
         </div>
       )}
     </div>
-  );
-}
-
-function LangChip({
-  active,
-  onClick,
-  label,
-  count,
-}: {
-  active: boolean;
-  onClick: () => void;
-  label: string;
-  count: number;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-xs font-medium transition',
-        active
-          ? 'border border-primary/50 bg-primary/10 text-primary shadow-[0_0_14px_-5px_var(--accent-cyan)]'
-          : 'glass text-muted-foreground hover:text-foreground',
-      )}
-    >
-      {label}
-      <span className="opacity-60">· {count}</span>
-    </button>
   );
 }
 

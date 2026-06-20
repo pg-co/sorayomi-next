@@ -12,7 +12,6 @@ export const PALETTE_LIBRARY_SEARCH_DOC = graphql(`
       nodes {
         id
         title
-        thumbnailUrl
       }
     }
   }
